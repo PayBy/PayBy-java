@@ -167,7 +167,7 @@ openssl pkcs8 -in PayBy_key.pem -topk8 -nocrypt -out PayBy_key_private.pem
 ## 3.3  Encryption Algorithm
 
 1. The encryption algorithm uses RSA public key encryption, and the public key is issued by PayBy.
-2. The encrypted field should not be too large, generally no more than 200 bytes.
+2. The encrypted field should not be too large, generally any more than 200 bytes.
 3. Encryption rules: RSA (encrypted original encryption).
 4. UTF-8 encoding is used for plaintext.
 5. The encryption result is encoded with Base64.
