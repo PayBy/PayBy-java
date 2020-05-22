@@ -1,14 +1,4 @@
-payby-java SDK
-
- 
-
- 
-
- 
-
- 
-
-# 1   Description
+# 1  Description
 
 This guide is written for application developers who want to integrate Payby payment solution
 
@@ -16,22 +6,27 @@ This guide is written for application developers who want to integrate Payby pay
 
 ## 2.1 JDK
 
-JDK 8+
+Versions ≥ 1.8 is required.
 
-Executing validation commands on the command line java -version, return similar content
+Executing validation commands on the command line java -version, return similar content:
 
+```shell
 java version "1.8.0_191"
 
 Java(TM) SE Runtime Environment (build 1.8.0_191-b12)
 
 Java HotSpot(TM) 64-Bit Server VM (build 25.191-b12, mixed mode)
+```
+
+
 
 ## 2.2 Maven
 
-Maven 3.0
+Versions ≥ 3.0 is required.
 
-Executing validation commands on the command line mvn –version, return similar content
+Executing validation commands on the command line mvn –version, return similar content:
 
+```shell
 Apache Maven 3.6.0 (97c98ec64a1fdfee7767ce5ffb20918da4f719f3; 2018-10-25T02:41:47+08:00)
 
 Maven home: D:\apache-maven-3.6.0\bin\..
@@ -41,8 +36,11 @@ Java version: 1.8.0_191, vendor: Oracle Corporation, runtime: C:\Program Files\J
 Default locale: zh_CN, platform encoding: GBK
 
 OS name: "windows 7", version: "6.1", arch: "amd64", family: "windows"
+```
 
-## 2.3    Import maven repository
+
+
+## 2.3  Import maven repository
 
 Import local library or remote library, choose by yourself according to the user's R & D environment
 
@@ -56,23 +54,33 @@ Open download directory: PayBy-java/dependency
 
 Move to ‘PayBy-java/dependency’ subdirectory
 
+```shell
 mvn install:install-file -Dfile=payby-api-1.1.jar -DpomFile=payby-api-1.1.pom
+```
+
+
 
 ### 2.3.3 Deploy remote repository
 
+```shell
 mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-api-1.1.jar -DpomFile=payby-api-1.1.pom
+```
+
+
 
 ## 2.4 Project import maven dependency
 
+
+
+```xml
 <dependency>
+       <groupId>com.payby</groupId>
+       <artifactId>payby-api</artifactId>
+       <version>1.1</version>
+ </dependency>
+```
 
-​       <groupId>com.payby</groupId>
 
-​       <artifactId>payby-api</artifactId>
-
-​       <version>1.1</version>
-
-   </dependency>
 
 ### 2.4.1 Sdk cascade depends on specific content
 
@@ -82,6 +90,7 @@ mvn dependency:tree
 
 Get results:
 
+```shell
 com.payby:payby-api:jar:1.1
 
  +- commons-io:commons-io:jar:2.4:compile
@@ -116,15 +125,16 @@ com.payby:payby-api:jar:1.1
 
   \- com.madgag.spongycastle:prov:jar:1.58.0.0:compile
 
-​    \- junit:junit:jar:4.12:compile
+     \- junit:junit:jar:4.12:compile
 
-​     \- org.hamcrest:hamcrest-core:jar:1.3:compile
+      \- org.hamcrest:hamcrest-core:jar:1.3:compile
+```
 
  
 
-# 3   Digital signature
+# 3  Digital signature
 
-## 3.1     Preparing keys
+## 3.1  Preparing keys
 
 
 
@@ -162,7 +172,7 @@ openssl pkcs8 -in PayBy_key.pem -topk8 -nocrypt -out PayBy_key_private.pem
 4. UTF-8 encoding is used for plaintext.
 5. The encryption result is encoded with Base64.
 
-## 3.4     Verify Signature Algorithm
+## 3.4  Verify Signature Algorithm
 
 1. Using SHA256WithRSA for verify signature algorithm. The rsa public key is downloaded from the payby merchant console.
 2. Using Base64 to decode the signature, ie. decoded_sign_data.
@@ -173,7 +183,7 @@ openssl pkcs8 -in PayBy_key.pem -topk8 -nocrypt -out PayBy_key_private.pem
 
 # 4   API description
 
-## 4.1    Function description
+## 4.1  Function description
 
 ### 4.1.1 HttpClient
 
@@ -515,7 +525,7 @@ public static List<Pair<String, String>> getFixHeaders() {
 
  
 
-## 4.2     Result notification
+## 4.2   Result notification
 
 ### 4.2.1  Verify signature
 
