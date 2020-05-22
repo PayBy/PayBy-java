@@ -33,7 +33,7 @@ import com.payby.api.misc.util.RsaUtil;
 
 public class PayByDemo {
 
-    List<Pair<String, String>> getFixHeaders() {
+    public static List<Pair<String, String>> getFixHeaders() {
         List<Pair<String, String>> pairs = new ArrayList<>();
         // setting Partner-Id
         pairs.add(new ImmutablePair<>("partner-id", "200000042607"));
@@ -408,7 +408,7 @@ public class PayByDemo {
             StandardCharsets.UTF_8);
     }
 
-    private HttpClient getHttpClient()
+    public static HttpClient getHttpClient()
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
         ApiConfig apiConfig = new ApiConfig();
         // setting interface url
