@@ -55,7 +55,7 @@ Open download directory: PayBy-java/dependency
 Move to ‘PayBy-java/dependency’ subdirectory
 
 ```shell
-mvn install:install-file -Dfile=payby-api-1.1.jar -DpomFile=payby-api-1.1.pom
+mvn install:install-file -Dfile=payby-api-1.2.jar -DpomFile=payby-api-1.2.pom
 ```
 
 
@@ -63,7 +63,7 @@ mvn install:install-file -Dfile=payby-api-1.1.jar -DpomFile=payby-api-1.1.pom
 ### 2.3.3 Deploy remote repository
 
 ```shell
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-api-1.1.jar -DpomFile=payby-api-1.1.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-api-1.2.jar -DpomFile=payby-api-1.2.pom
 ```
 
 
@@ -76,7 +76,7 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 <dependency>
        <groupId>com.payby</groupId>
        <artifactId>payby-api</artifactId>
-       <version>1.1</version>
+       <version>1.2</version>
  </dependency>
 ```
 
@@ -91,7 +91,7 @@ mvn dependency:tree
 Get results:
 
 ```shell
-com.payby:payby-api:jar:1.1
+com.payby:payby-api:jar:1.2
 
  +- commons-io:commons-io:jar:2.4:compile
 
@@ -185,10 +185,10 @@ openssl pkcs8 -in PayBy_key.pem -topk8 -nocrypt -out PayBy_key_private.pem
 
 ## 4.1  Function description
 
-### 4.1.1 HttpClient
+### 4.1.1 PayByClient
 
 ```java
-public static HttpClient getHttpClient()
+public static PayByClient getPayByClient()
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
         ApiConfig apiConfig = new ApiConfig();
         // setting interface url
@@ -210,7 +210,7 @@ public static HttpClient getHttpClient()
         ClientConfig config = new OkHttpClientConfig.Builder()
             .interceptor(new OkHttpClientConfig.SignInterceptor(apiConfig.getCert())).apiConfig(apiConfig).build();
 
-        HttpClient client = new HttpClient(config);
+        PayByClient client = new PayByClient(config);
         return client;
 
     }
@@ -234,56 +234,47 @@ public static List<Pair<String, String>> getFixHeaders() {
 ### 4.1.2  Order creation
 
 ```java
-        HttpClient client = getHttpClient();
+        PayByClient client = getPayByClient();
 
-        Map<String, Object> wrap = new HashMap<>();
-        // Request time Required
-        wrap.put("requestTime", System.currentTimeMillis());
-        Map<String, Object> req = new HashMap<>();
+        PlaceOrderRequest placeOrderRequest = new PlaceOrderRequest();
         // Merchant order number Required
-        req.put("merchantOrderNo","M202005120001");
+        placeOrderRequest.setMerchantOrderNo("M202005120001");
         // Product name Required
-        req.put("subject", "Ipad");
-        Map<String, Object> amount = new HashMap<>();
-        // Order currency Required
-        amount.put("currency", "AED");
-        // Order amount Required
-        amount.put("amount", new BigDecimal("0.1"));
-        req.put("totalAmount", amount);
+        placeOrderRequest.setSubject("ipad");
+        // Order totalAmount Required
+        ExternalMoney totalAmount = new ExternalMoney(new BigDecimal("0.1"), "AED");
+        placeOrderRequest.setTotalAmount(totalAmount);
         // Payment scenario code Required
-        req.put("paySceneCode", "DYNQR");
+        placeOrderRequest.setPaySceneCode("DYNQR");
         // Notification URL Optional
-        req.put("notifyUrl", "http://yoursite.com/api/notification");
+        placeOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
         // Accessory content Optional
-        Map<String, Object> accessoryContent = new HashMap<>();
+        AccessoryContent accessoryContent = new AccessoryContent();
         // Amount detail Optional
-        Map<String, Object> amountDetail = new HashMap<>();
-
-        Map<String, Object> vatAmount = new HashMap<>();
-        vatAmount.put("currency", "AED");
-        vatAmount.put("amount", new BigDecimal("0.1"));
+        AmountDetail amountDetail = new AmountDetail();
         // Vat amount Optional
-        amountDetail.put("vatAmount", vatAmount);
+        amountDetail.setVatAmount(new ExternalMoney(new BigDecimal("0.1"), "AED"));
         // Goods detail Optional
-        Map<String, Object> goodsDetail = new HashMap<>();
-        goodsDetail.put("body", "Gifts");
-        goodsDetail.put("goodsName", "candy flower");
-        goodsDetail.put("goodsId", "GI1005");
+        GoodsDetail goodsDetail = new GoodsDetail();
+        goodsDetail.setBody("gifts");
+        goodsDetail.setGoodsName("candy flower");
+        goodsDetail.setGoodsId("GI1005");
         // Terminal detail Optional
-        Map<String, Object> terminalDetail = new HashMap<>();
-        terminalDetail.put("merchantName", "candy home");
-        accessoryContent.put("amountDetail", amountDetail);
-        accessoryContent.put("goodsDetail", goodsDetail);
-        accessoryContent.put("terminalDetail", terminalDetail);
-        req.put("accessoryContent", accessoryContent);
-        wrap.put("bizContent", req);
+        TerminalDetail terminalDetail = new TerminalDetail();
+        terminalDetail.setMerchantName("candy home");
+        accessoryContent.setAmountDetail(amountDetail);
+        accessoryContent.setGoodsDetail(goodsDetail);
+        accessoryContent.setTerminalDetail(terminalDetail);
+        placeOrderRequest.setAccessoryContent(accessoryContent);
+        SgsRequestWrap<PlaceOrderRequest> wrap = SgsRequestWrap.wrap(placeOrderRequest);
+
         System.out.println("placeOrder request=>" + JSON.toJSONString(wrap));
 
-        HttpRequest request =
-            new HttpRequest.Builder().api("/acquire2/placeOrder").body(JSON.toJSONBytes(wrap)).build();
-
-        String response = client.execute(request);
-        System.out.println("placeOrder response=>" + response);
+        SgsResponseWrap<PlaceOrderResponse> responseWrap = client.execute(SgsApi.PLACE_ACQUIRE_ORDER, wrap);
+        System.out.println("placeOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        PlaceOrderResponse body = responseWrap.getBody();
+        System.out.println("placeOrder body=>" + JSON.toJSONString(body));
 
 ```
 
@@ -294,22 +285,19 @@ public static List<Pair<String, String>> getFixHeaders() {
 ### 4.1.3  Order cancellation
 
 ```java
-        HttpClient client = getHttpClient();
+        PayByClient client = getPayByClient();
 
-        Map<String, Object> wrap = new HashMap<>();
-        // Request time Required
-        wrap.put("requestTime", System.currentTimeMillis());
-        Map<String, Object> req = new HashMap<>();
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
         // Merchant order number Required
-        req.put("merchantOrderNo", "M202005120001");
-        wrap.put("bizContent", req);
+        orderIndexRequest.setMerchantOrderNo("M202005120001");
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
         System.out.println("cancelOrder request=>" + JSON.toJSONString(wrap));
 
-        HttpRequest request =
-            new HttpRequest.Builder().api("/acquire2/cancelOrder").body(JSON.toJSONBytes(wrap)).build();
-
-        String response = client.execute(request);
-        System.out.println("cancelOrder response=>" + response);
+        SgsResponseWrap<GetPlaceOrderResponse> responseWrap = client.execute(SgsApi.CANCEL_ACQUIRE_ORDER, wrap);
+        System.out.println("cancelOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetPlaceOrderResponse body = responseWrap.getBody();
+        System.out.println("cancelOrder body=>" + JSON.toJSONString(body));
 ```
 
  
@@ -317,21 +305,19 @@ public static List<Pair<String, String>> getFixHeaders() {
 ### 4.1.4  Order query
 
 ```java
-       HttpClient client = getHttpClient();
+        PayByClient client = getPayByClient();
 
-        Map<String, Object> wrap = new HashMap<>();
-        // Request time Required
-        wrap.put("requestTime", System.currentTimeMillis());
-        Map<String, Object> req = new HashMap<>();
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
         // Merchant order number Required
-        req.put("merchantOrderNo", "M202005120001");
-        wrap.put("bizContent", req);
-        System.out.println("queryOrder request=>" + JSON.toJSONString(wrap));
+        orderIndexRequest.setMerchantOrderNo("M202005120001");
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getOrder request=>" + JSON.toJSONString(wrap));
 
-        HttpRequest request = new HttpRequest.Builder().api("/acquire2/getOrder").body(JSON.toJSONBytes(wrap)).build();
-
-        String response = client.execute(request);
-        System.out.println("queryOrder response=>" + response);
+        SgsResponseWrap<GetPlaceOrderResponse> responseWrap = client.execute(SgsApi.GET_ACQUIRE_ORDER, wrap);
+        System.out.println("getOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetPlaceOrderResponse body = responseWrap.getBody();
+        System.out.println("getOrder body=>" + JSON.toJSONString(body));
 ```
 
  
@@ -339,39 +325,30 @@ public static List<Pair<String, String>> getFixHeaders() {
 ### 4.1.5  Order refund
 
 ```java
-        HttpClient client = getHttpClient();
+        PayByClient client = getPayByClient();
 
-        String merchantOrderNo =
-            FileUtils.readFileToString(new File("target/merchantOrderNo.txt"), StandardCharsets.UTF_8);
-
-        Map<String, Object> wrap = new HashMap<>();
-        // Request time Required
-        wrap.put("requestTime", System.currentTimeMillis());
-        Map<String, Object> req = new HashMap<>();
+        PlaceRefundOrderRequest placeRefundOrderRequest = new PlaceRefundOrderRequest();
+        // Refund refund amount Required
+        placeRefundOrderRequest.setAmount(new ExternalMoney(new BigDecimal("0.1"), "AED"));
         // Merchant order number Required
-        req.put("refundMerchantOrderNo", "M220000000001");
-        // Original merchant order number Required
-        req.put("originMerchantOrderNo", "M80000000001");
-        Map<String, Object> amount = new HashMap<>();
-        // Refund order currency Required
-        amount.put("currency", "AED");
-        // Refund order amount Required
-        amount.put("amount", new BigDecimal("0.1"));
-        req.put("amount", amount);
+        placeRefundOrderRequest.setRefundMerchantOrderNo("M80000000001");
+        // Original merchant order number
+        placeRefundOrderRequest.setOriginMerchantOrderNo("M220000000001");
         // Refund operator name Optional
-        req.put("operatorName", "JACKMA");
+        placeRefundOrderRequest.setOperatorName("JACKMA");
         // Refund reason name Optional
-        req.put("reason", "reason123");
+        placeRefundOrderRequest.setReason("reason123");
         // Notification URL Optional
-        req.put("notifyUrl", "http://yoursite.com/api/notification");
-        wrap.put("bizContent", req);
+        placeRefundOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
+
+        SgsRequestWrap<PlaceRefundOrderRequest> wrap = SgsRequestWrap.wrap(placeRefundOrderRequest);
         System.out.println("refundOrder request=>" + JSON.toJSONString(wrap));
 
-        HttpRequest request =
-            new HttpRequest.Builder().api("/acquire2/refund/placeOrder").body(JSON.toJSONBytes(wrap)).build();
-
-        String response = client.execute(request);
-        System.out.println("refundOrder response=>" + response);
+        SgsResponseWrap<PlaceRefundOrderResponse> responseWrap = client.execute(SgsApi.PLACE_REFUND_ORDER, wrap);
+        System.out.println("refundOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        PlaceRefundOrderResponse body = responseWrap.getBody();
+        System.out.println("refundOrder body=>" + JSON.toJSONString(body));
 ```
 
 
@@ -379,23 +356,19 @@ public static List<Pair<String, String>> getFixHeaders() {
 ### 4.1.6  Order refund query
 
 ```java
-        HttpClient client = getHttpClient();
+        PayByClient client = getPayByClient();
 
-        Map<String, Object> wrap = new HashMap<>();
-        // Request time Required
-        wrap.put("requestTime", System.currentTimeMillis());
-        Map<String, Object> req = new HashMap<>();
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Merchant order number Required
+        orderIndexRequest.setMerchantOrderNo("M80000000001");
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getRefundOrder request=>" + JSON.toJSONString(wrap));
 
-
-        // Refund merchant order number Required
-        req.put("refundMerchantOrderNo", "M220000000001");
-        wrap.put("bizContent", req);
-        System.out.println("queryRefundOrder request=>" + JSON.toJSONString(wrap));
-        HttpRequest request =
-            new HttpRequest.Builder().api("/acquire2/refund/getOrder").body(JSON.toJSONBytes(wrap)).build();
-
-        String response = client.execute(request);
-        System.out.println("queryRefundOrder response=>" + response);
+        SgsResponseWrap<GetRefundOrderResponse> responseWrap = client.execute(SgsApi.GET_REFUND_ORDER, wrap);
+        System.out.println("getRefundOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetRefundOrderResponse body = responseWrap.getBody();
+        System.out.println("getRefundOrder body=>" + JSON.toJSONString(body));
 ```
 
  
@@ -403,38 +376,38 @@ public static List<Pair<String, String>> getFixHeaders() {
 ### 4.1.7  Transfer
 
 ```java
-        HttpClient client = getHttpClient();
-        Map<String, Object> wrap = new HashMap<>();
-        // Request time Required
-        wrap.put("requestTime", System.currentTimeMillis());
-        Map<String, Object> req = new HashMap<>();
+        PayByClient client = getPayByClient();
+
+        PlaceTransferOrderRequest placeTransferOrderRequest = new PlaceTransferOrderRequest();
+
         // Merchant order number Required
-        req.put("merchantOrderNo", "M320000000001");
+        placeTransferOrderRequest.setMerchantOrderNo("M320000000001");
         // Beneficiary Identity Type Required
-        req.put("beneficiaryIdentityType", "PHONE_NO");
+        placeTransferOrderRequest.setBeneficiaryIdentityType("PHONE_NO");
         String payByPubKey = new String(Files
             .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("payby_public_key.pem").toURI())));
         // Beneficiary Identity
-        req.put("beneficiaryIdentity", RsaUtil.encrypt("971-585812341", Charset.forName("UTF-8"), payByPubKey, 2048));
-        req.put("beneficiaryFullName", RsaUtil.encrypt("JACKMA", Charset.forName("UTF-8"), payByPubKey, 2048));
+        placeTransferOrderRequest
+            .setBeneficiaryIdentity(RsaUtil.encrypt("971-585812341", Charset.forName("UTF-8"), payByPubKey, 2048));
+        placeTransferOrderRequest
+            .setBeneficiaryFullName(RsaUtil.encrypt("JACKMA", Charset.forName("UTF-8"), payByPubKey, 2048));
 
-        Map<String, Object> amount = new HashMap<>();
-        // Transfer order currency Required
-        amount.put("currency", "AED");
         // Transfer order amount Required
-        amount.put("amount", new BigDecimal("0.1"));
-        req.put("amount", amount);
-        // memo Required
-        req.put("memo", "Bonus");
-        // Notification URL Optional
-        req.put("notifyUrl", "http://yoursite.com/api/notification");
-        wrap.put("bizContent", req);
-        System.out.println("transfer request=>" + JSON.toJSONString(wrap));
-        HttpRequest request =
-            new HttpRequest.Builder().api("/transfer/placeTransferOrder").body(JSON.toJSONBytes(wrap)).build();
+        placeTransferOrderRequest.setAmount(new ExternalMoney(new BigDecimal("0.1"), "AED"));
 
-        String response = client.execute(request);
-        System.out.println("transfer response=>" + response);
+        // memo Required
+        placeTransferOrderRequest.setMemo("Bonus");
+        // Notification URL Optional
+        placeTransferOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
+
+        SgsRequestWrap<PlaceTransferOrderRequest> wrap = SgsRequestWrap.wrap(placeTransferOrderRequest);
+        System.out.println("transfer request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<PlaceTransferOrderResponse> responseWrap = client.execute(SgsApi.PLACE_TRANSFER_ORDER, wrap);
+        System.out.println("transfer response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        PlaceTransferOrderResponse body = responseWrap.getBody();
+        System.out.println("transfer body=>" + JSON.toJSONString(body));
 ```
 
 
@@ -442,22 +415,20 @@ public static List<Pair<String, String>> getFixHeaders() {
 ### 4.1.8  Transfer query
 
 ```java
-        HttpClient client = getHttpClient();
-        
-        Map<String, Object> wrap = new HashMap<>();
-        // Request time Required
-        wrap.put("requestTime", System.currentTimeMillis());
-        Map<String, Object> req = new HashMap<>();
+        PayByClient client = getPayByClient();
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
         // Merchant order number Required
-        req.put("merchantOrderNo", "M320000000001");
-        wrap.put("bizContent", req);
+        orderIndexRequest.setMerchantOrderNo("M320000000001");
+
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
         System.out.println("getTransferOrder request=>" + JSON.toJSONString(wrap));
 
-        HttpRequest request =
-            new HttpRequest.Builder().api("/transfer/getTransferOrder").body(JSON.toJSONBytes(wrap)).build();
-
-        String response = client.execute(request);
-        System.out.println("getTransferOrder response=>" + response);
+        SgsResponseWrap<GetTransferOrderResponse> responseWrap = client.execute(SgsApi.GET_TRANSFER_ORDER, wrap);
+        System.out.println("getTransferOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetTransferOrderResponse body = responseWrap.getBody();
+        System.out.println("getTransferOrder body=>" + JSON.toJSONString(body));
 ```
 
  
@@ -465,40 +436,36 @@ public static List<Pair<String, String>> getFixHeaders() {
 ### 4.1.9  Transfer to bank
 
 ```java
-        HttpClient client = getHttpClient();
+        PayByClient client = getPayByClient();
 
-        Map<String, Object> wrap = new HashMap<>();
-        // Request time Required
-        wrap.put("requestTime", System.currentTimeMillis());
-        Map<String, Object> req = new HashMap<>();
+        PlaceTransferToBankOrderRequest placeTransferToBankOrderRequest = new PlaceTransferToBankOrderRequest();
         // Merchant order number Required
-        req.put("merchantOrderNo", "M320000000002");
+        placeTransferToBankOrderRequest.setMerchantOrderNo("M320000000002");
         String payByPubKey = new String(Files
             .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("payby_public_key.pem").toURI())));
         // Holder Name Required
-        req.put("holderName", RsaUtil.encrypt("JACKMA", Charset.forName("UTF-8"), payByPubKey, 2048));
+        placeTransferToBankOrderRequest
+            .setHolderName(RsaUtil.encrypt("JACKMA", Charset.forName("UTF-8"), payByPubKey, 2048));
         // Iban Required
-        req.put("Iban", RsaUtil.encrypt("5000312313111", Charset.forName("UTF-8"), payByPubKey, 2048));
+        placeTransferToBankOrderRequest
+            .setIban(RsaUtil.encrypt("5000312313111", Charset.forName("UTF-8"), payByPubKey, 2048));
         // SwiftCode Optional
-        req.put("swiftCode", "ARABAEADDER");
-
-        Map<String, Object> amount = new HashMap<>();
-        // Transfer order currency Required
-        amount.put("currency", "AED");
+        placeTransferToBankOrderRequest.setSwiftCode("ARABAEADDER");
         // Transfer order amount Required
-        amount.put("amount", new BigDecimal("0.1"));
-        req.put("amount", amount);
+        placeTransferToBankOrderRequest.setAmount(new ExternalMoney(new BigDecimal("0.1"), "AED"));
         // memo Required
-        req.put("memo", "Bonus");
+        placeTransferToBankOrderRequest.setMemo("Bonus");
         // Notification URL Optional
-        req.put("notifyUrl", "http://yoursite.com/api/notification");
-        wrap.put("bizContent", req);
-        System.out.println("transfer2bank request=>" + JSON.toJSONString(wrap));
-        HttpRequest request =
-            new HttpRequest.Builder().api("/transfer/placeTransferToBankOrder").body(JSON.toJSONBytes(wrap)).build();
+        placeTransferToBankOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
 
-        String response = client.execute(request);
-        System.out.println("transfer2bank response=>" + response);
+        SgsRequestWrap<PlaceTransferToBankOrderRequest> wrap = SgsRequestWrap.wrap(placeTransferToBankOrderRequest);
+        System.out.println("transfer2bank request=>" + JSON.toJSONString(wrap));
+        SgsResponseWrap<PlaceTransferToBankOrderResponse> responseWrap =
+            client.execute(SgsApi.PLACE_TRANSFER_TO_BANK_ORDER, wrap);
+        System.out.println("transfer2bank response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        PlaceTransferToBankOrderResponse body = responseWrap.getBody();
+        System.out.println("transfer2bank body=>" + JSON.toJSONString(body));
 ```
 
 
@@ -506,21 +473,21 @@ public static List<Pair<String, String>> getFixHeaders() {
 ### 4.1.10  Transfer to bank query
 
 ```java
-        HttpClient client = getHttpClient();
+        PayByClient client = getPayByClient();
 
-        Map<String, Object> wrap = new HashMap<>();
-        // Request time Required
-        wrap.put("requestTime", System.currentTimeMillis());
-        Map<String, Object> req = new HashMap<>();
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
         // Merchant order number Required
-        req.put("merchantOrderNo", "M320000000002");
-        wrap.put("bizContent", req);
-        System.out.println("getTransferToBankOrder request=>" + JSON.toJSONString(wrap));
-        HttpRequest request =
-            new HttpRequest.Builder().api("/transfer/getTransferToBankOrder").body(JSON.toJSONBytes(wrap)).build();
+        orderIndexRequest.setMerchantOrderNo("M320000000002");
 
-        String response = client.execute(request);
-        System.out.println("getTransferToBankOrder response=>" + response);
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getTransferToBankOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetTransferToBankOrderResponse> responseWrap =
+            client.execute(SgsApi.GET_TRANSFER_TO_BANK_ORDER, wrap);
+        System.out.println("getTransferToBankOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetTransferToBankOrderResponse body = responseWrap.getBody();
+        System.out.println("getTransferToBankOrder body=>" + JSON.toJSONString(body));
 ```
 
  
@@ -538,7 +505,12 @@ String payByPubKey = new String(Files
         String sign =
             "dPVyhhidZioH00QCVglgDfXNcDXHuMXmtzYF4WCEvnvmL3nCyqP5r9DmQ2bQYOf30tLEpqx1vmJpcT85f8voual7+sKPAehGRbyL9m30BF1KHwOFOhZSnOsBO8NQDJ1WMkG34mRmndfKRWpzi6RzWwfS/twJRXTt7maY2yPt93xhqeb2JbG2hktDFx8tnk3oxXil3oZLFq75X2Gbpd1SkrsnvxTLq5Bo98i4K3Kl4jWySU/vu8nX0M2JPWF6uC3OlOMq32Wo3mDPqM0DzH9t9WBwz2X6MQVnc/aFA5GfJbMKMYFFYwCh9CPtaWbrGmAFXAC9u/sz8bt3IAyiAGdd4w==";
 
-        System.out.println("verify result=>" + RsaUtil.verifySign(plain, Charset.forName("UTF-8"), sign, payByPubKey));
+        // assert verify sign
+        Assert.assertTrue(RsaUtil.verifySign(plain, Charset.forName("UTF-8"), sign, payByPubKey));
+
+        GetPlaceOrderResponse callbackOrder = JSON.parseObject(plain, new TypeReference<GetPlaceOrderResponse>() {});
+
+        System.out.println("acquireOrder callback body=>" + callbackOrder);
 
 ```
 
@@ -555,14 +527,16 @@ String payByPubKey = new String(Files
     String body = IOUtils.toString(req.getInputStream(), "UTF-8");
 
     // setting payby publicKey path
-
      String payByPubKey = new String(Files.readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("payby_public_key.pem").toURI())));
 
-     System.out.println("verify result=>" + RsaUtil.verifySign(body, Charset.forName("UTF-8"), sign, payByPubKey));
+       // assert verify sign
+        Assert.assertTrue(RsaUtil.verifySign(plain, Charset.forName("UTF-8"), sign, payByPubKey));
 
-     //TODO Business logic
-       
-     
+       //TODO Business logic
+        GetPlaceOrderResponse callbackOrder = JSON.parseObject(plain, new TypeReference<GetPlaceOrderResponse>() {});
+
+        System.out.println("acquireOrder callback body=>" + callbackOrder);
+
      httpResponse.setContentType("application/json;charset=UTF-8");
 
      httpResponse.getOutputStream().write("SUCCESS".getBytes("UTF-8"));
