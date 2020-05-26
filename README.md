@@ -8,7 +8,7 @@ This guide is written for application developers who want to integrate Payby pay
 
 Versions ≥ 1.8 is required.
 
-Executing validation commands on the command line java -version, return similar content:
+Executing validation commands on the command line **java -version**, return similar content:
 
 ```shell
 java version "1.8.0_191"
@@ -24,7 +24,7 @@ Java HotSpot(TM) 64-Bit Server VM (build 25.191-b12, mixed mode)
 
 Versions ≥ 3.0 is required.
 
-Executing validation commands on the command line mvn –version, return similar content:
+Executing validation commands on the command line **mvn –version**, return similar content:
 
 ```shell
 Apache Maven 3.6.0 (97c98ec64a1fdfee7767ce5ffb20918da4f719f3; 2018-10-25T02:41:47+08:00)
@@ -86,7 +86,11 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 
 The specific content varies according to the actual version, execute at project root 
 
+```shell
 mvn dependency:tree
+```
+
+
 
 Get results:
 
@@ -176,7 +180,7 @@ openssl pkcs8 -in PayBy_key.pem -topk8 -nocrypt -out PayBy_key_private.pem
 
 1. Using SHA256WithRSA for verify signature algorithm. The rsa public key is downloaded from the payby merchant console.
 2. Using Base64 to decode the signature, ie. decoded_sign_data.
-3. Using UTF-8 to decode the original content, ie. decoded_content_data
+3. Using UTF-8 to decode the original content, ie. decoded_content_data.
 4. verify signature using parameters as listed (rsa_public_key, decoded_sign_data, decoded_content_data).
 
  

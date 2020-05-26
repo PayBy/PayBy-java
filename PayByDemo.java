@@ -74,12 +74,12 @@ public class PayByDemo {
         String sign =
             "dPVyhhidZioH00QCVglgDfXNcDXHuMXmtzYF4WCEvnvmL3nCyqP5r9DmQ2bQYOf30tLEpqx1vmJpcT85f8voual7+sKPAehGRbyL9m30BF1KHwOFOhZSnOsBO8NQDJ1WMkG34mRmndfKRWpzi6RzWwfS/twJRXTt7maY2yPt93xhqeb2JbG2hktDFx8tnk3oxXil3oZLFq75X2Gbpd1SkrsnvxTLq5Bo98i4K3Kl4jWySU/vu8nX0M2JPWF6uC3OlOMq32Wo3mDPqM0DzH9t9WBwz2X6MQVnc/aFA5GfJbMKMYFFYwCh9CPtaWbrGmAFXAC9u/sz8bt3IAyiAGdd4w==";
 
-        System.out.println("verify result=>" + RsaUtil.verifySign(plain, Charset.forName("UTF-8"), sign, payByPubKey));
+        // assert verify sign
+        Assert.assertTrue(RsaUtil.verifySign(plain, Charset.forName("UTF-8"), sign, payByPubKey));
 
-        GetPlaceOrderResponse warp =
-            JSON.parseObject(plain, new TypeReference<GetPlaceOrderResponse>() {});
-        
-        System.out.println(warp);
+        GetPlaceOrderResponse callbackOrder = JSON.parseObject(plain, new TypeReference<GetPlaceOrderResponse>() {});
+
+        System.out.println("acquireOrder callback body=>" + callbackOrder);
 
     }
 
