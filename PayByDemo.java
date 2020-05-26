@@ -412,7 +412,7 @@ public class PayByDemo {
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
         ApiConfig apiConfig = new ApiConfig();
         // setting interface url
-        apiConfig.setDomain("https://sim.test2pay.com/sgs/api");
+        apiConfig.setDomain("https://uat.test2pay.com/sgs/api");
 
         // setting pkcs8 privateKey path
         String merchantPrivateKey = new String(Files.readAllBytes(
