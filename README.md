@@ -55,7 +55,7 @@ Open download directory: PayBy-java/dependency
 Move to ‘PayBy-java/dependency’ subdirectory
 
 ```shell
-mvn install:install-file -Dfile=payby-api-1.2.jar -DpomFile=payby-api-1.2.pom
+mvn install:install-file -Dfile=payby-api-1.2.1.jar -DpomFile=payby-api-1.2.1.pom
 ```
 
 
@@ -63,7 +63,7 @@ mvn install:install-file -Dfile=payby-api-1.2.jar -DpomFile=payby-api-1.2.pom
 ### 2.3.3 Deploy remote repository
 
 ```shell
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-api-1.2.jar -DpomFile=payby-api-1.2.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-api-1.2.1.jar -DpomFile=payby-api-1.2.1.pom
 ```
 
 
@@ -76,7 +76,7 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 <dependency>
        <groupId>com.payby</groupId>
        <artifactId>payby-api</artifactId>
-       <version>1.2</version>
+       <version>1.2.1</version>
  </dependency>
 ```
 
@@ -95,43 +95,28 @@ mvn dependency:tree
 Get results:
 
 ```shell
-com.payby:payby-api:jar:1.2
-
+ com.payby:payby-api:jar:1.2.1
  +- commons-io:commons-io:jar:2.4:compile
-
  +- commons-codec:commons-codec:jar:1.13:compile
-
  +- org.projectlombok:lombok:jar:1.18.8:provided
-
  +- org.bouncycastle:bcprov-jdk15on:jar:1.64:compile
-
  +- org.bouncycastle:bcpkix-jdk15on:jar:1.64:compile
-
  +- com.alibaba:fastjson:jar:1.2.58:compile
-
  +- org.slf4j:slf4j-api:jar:1.7.26:compile
-
  +- org.apache.commons:commons-lang3:jar:3.9:compile
-
  +- com.squareup.okhttp3:okhttp:jar:3.11.0:compile
-
- | \- com.squareup.okio:okio:jar:1.14.0:compile
-
+ |  \- com.squareup.okio:okio:jar:1.14.0:compile
  +- org.apache.httpcomponents:httpclient:jar:4.5.6:compile
-
- | +- org.apache.httpcomponents:httpcore:jar:4.4.10:compile
-
- | \- commons-logging:commons-logging:jar:1.2:compile
-
- \- com.madgag.spongycastle:bcpkix-jdk15on:jar:1.58.0.0:compile
-
-  +- com.madgag.spongycastle:core:jar:1.58.0.0:compile
-
-  \- com.madgag.spongycastle:prov:jar:1.58.0.0:compile
-
-     \- junit:junit:jar:4.12:compile
-
-      \- org.hamcrest:hamcrest-core:jar:1.3:compile
+ +- org.apache.httpcomponents:httpcore:jar:4.4.10:compile
+ |  \- commons-logging:commons-logging:jar:1.2:compile
+ +- com.madgag.spongycastle:bcpkix-jdk15on:jar:1.58.0.0:compile
+ |  +- com.madgag.spongycastle:core:jar:1.58.0.0:compile
+ |  \- com.madgag.spongycastle:prov:jar:1.58.0.0:compile
+ |     \- junit:junit:jar:4.12:compile
+ |        \- org.hamcrest:hamcrest-core:jar:1.3:compile
+ +- ch.qos.logback:logback-classic:jar:1.2.3:compile
+ |  \- ch.qos.logback:logback-core:jar:1.2.3:compile
+ \- com.squareup.okhttp3:logging-interceptor:jar:3.11.0:compile
 ```
 
  
@@ -210,9 +195,13 @@ public static PayByClient getPayByClient()
 
         // setting http header params
         apiConfig.setFixHeaders(getFixHeaders());
+     
+        HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor();
+        logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
-        ClientConfig config = new OkHttpClientConfig.Builder()
-            .interceptor(new OkHttpClientConfig.SignInterceptor(apiConfig.getCert())).apiConfig(apiConfig).build();
+        ClientConfig config =
+            new OkHttpClientConfig.Builder().interceptor(new OkHttpClientConfig.SignInterceptor(apiConfig.getCert()))
+                .interceptor(logInterceptor).apiConfig(apiConfig).build();
 
         PayByClient client = new PayByClient(config);
         return client;

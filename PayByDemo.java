@@ -12,7 +12,9 @@ import java.security.InvalidKeyException;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
@@ -50,6 +52,9 @@ import com.payby.api.server.sgs.response.PlaceOrderResponse;
 import com.payby.api.server.sgs.response.PlaceRefundOrderResponse;
 import com.payby.api.server.sgs.response.PlaceTransferOrderResponse;
 import com.payby.api.server.sgs.response.PlaceTransferToBankOrderResponse;
+
+import okhttp3.logging.HttpLoggingInterceptor;
+
 
 public class PayByDemo {
 
@@ -144,6 +149,7 @@ public class PayByDemo {
         PayByClient client = getPayByClient();
 
         PlaceOrderRequest placeOrderRequest = new PlaceOrderRequest();
+
         // Merchant order number Required
         placeOrderRequest.setMerchantOrderNo(UUID.randomUUID().toString());
         // Product name Required
@@ -427,8 +433,12 @@ public class PayByDemo {
         // setting http header params
         apiConfig.setFixHeaders(getFixHeaders());
 
-        ClientConfig config = new OkHttpClientConfig.Builder()
-            .interceptor(new OkHttpClientConfig.SignInterceptor(apiConfig.getCert())).apiConfig(apiConfig).build();
+        HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor();
+        logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        ClientConfig config =
+            new OkHttpClientConfig.Builder().interceptor(new OkHttpClientConfig.SignInterceptor(apiConfig.getCert()))
+                .interceptor(logInterceptor).apiConfig(apiConfig).build();
 
         PayByClient client = new PayByClient(config);
         return client;

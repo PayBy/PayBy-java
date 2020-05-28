@@ -6,7 +6,7 @@
 
 	<groupId>com.payby</groupId>
 	<artifactId>payby-api</artifactId>
-	<version>1.2</version>
+	<version>1.2.1</version>
 	
 	<scm>
         <connection>scm:git:git@gitlab.test2pay.com:liuzhibin/payby-api.git
@@ -120,6 +120,17 @@
 			<groupId>com.madgag.spongycastle</groupId>
 			<artifactId>bcpkix-jdk15on</artifactId>
 			<version>1.58.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.2.3</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>logging-interceptor</artifactId>
+			<version>${okhttp3.version}</version>
 		</dependency>
 	</dependencies>
 
