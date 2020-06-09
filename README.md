@@ -119,7 +119,32 @@ Get results:
  \- com.squareup.okhttp3:logging-interceptor:jar:3.11.0:compile
 ```
 
- 
+###  2.4.2 Bouncycastle version special description
+
+Because many versions of Bouncycastle Library, The version we use:
+
+```xml
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.64</version>
+			<scope>compile</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcpkix-jdk15on</artifactId>
+			<version>1.64</version>
+			<scope>compile</scope>
+			<optional>true</optional>
+		</dependency>
+```
+
+Users can switch to other equivalent Maven library dependencies according to the actual situation.
+
+Using view query provided by mvn dependency.
+
+The BC dependency used by the host project. If there is a conflict, you can consider using the Maven exclude method to remove the old version
 
 # 3  Digital signature
 
