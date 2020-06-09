@@ -55,7 +55,7 @@ Open download directory: PayBy-java/dependency
 Move to ‘PayBy-java/dependency’ subdirectory
 
 ```shell
-mvn install:install-file -Dfile=payby-api-1.2.1.jar -DpomFile=payby-api-1.2.1.pom
+mvn install:install-file -Dfile=payby-api-1.2.2.jar -DpomFile=payby-api-1.2.2.pom
 ```
 
 
@@ -63,7 +63,7 @@ mvn install:install-file -Dfile=payby-api-1.2.1.jar -DpomFile=payby-api-1.2.1.po
 ### 2.3.3 Deploy remote repository
 
 ```shell
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-api-1.2.1.jar -DpomFile=payby-api-1.2.1.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-api-1.2.2.jar -DpomFile=payby-api-1.2.2.pom
 ```
 
 
@@ -76,7 +76,7 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 <dependency>
        <groupId>com.payby</groupId>
        <artifactId>payby-api</artifactId>
-       <version>1.2.1</version>
+       <version>1.2.2</version>
  </dependency>
 ```
 
@@ -95,7 +95,7 @@ mvn dependency:tree
 Get results:
 
 ```shell
- com.payby:payby-api:jar:1.2.1
+ com.payby:payby-api:jar:1.2.2
  +- commons-io:commons-io:jar:2.4:compile
  +- commons-codec:commons-codec:jar:1.13:compile
  +- org.projectlombok:lombok:jar:1.18.8:provided
@@ -564,4 +564,21 @@ String payByPubKey = new String(Files
   }
 ```
 
- 
+## 4.3 Download
+
+### 4.3.1 Order Statement
+
+```java
+        GetOrderStatementRequest req = new GetOrderStatementRequest();
+        //setting statementDate
+		req.setStatementDate("20200605");
+        PayByClient client = getPayByClient();
+        SgsRequestWrap<GetOrderStatementRequest> wrap = SgsRequestWrap.wrap(req);
+        //setting statementFileDir
+        File statementFileDir = new File("d:\\payby_statement_file");
+        System.out.println("getOrderStatement request=>" + JSON.toJSONString(wrap));
+        File file = client.download(SgsApi.GET_ORDER_STATEMENT, wrap, statementFileDir);
+        System.out.println("getOrderStatement file path=>" + file.getAbsolutePath());
+        System.out.println("getOrderStatement file size=>" + file.length());
+```
+
