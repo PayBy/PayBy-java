@@ -39,6 +39,7 @@ import com.payby.api.server.sgs.model.AmountDetail;
 import com.payby.api.server.sgs.model.ExternalMoney;
 import com.payby.api.server.sgs.model.GoodsDetail;
 import com.payby.api.server.sgs.model.TerminalDetail;
+import com.payby.api.server.sgs.request.GetOrderStatementRequest;
 import com.payby.api.server.sgs.request.OrderIndexRequest;
 import com.payby.api.server.sgs.request.PlaceOrderRequest;
 import com.payby.api.server.sgs.request.PlaceRefundOrderRequest;
@@ -54,7 +55,6 @@ import com.payby.api.server.sgs.response.PlaceTransferOrderResponse;
 import com.payby.api.server.sgs.response.PlaceTransferToBankOrderResponse;
 
 import okhttp3.logging.HttpLoggingInterceptor;
-
 
 public class PayByDemo {
 
@@ -99,6 +99,11 @@ public class PayByDemo {
         throws InvalidKeyException, InvalidKeySpecException, SignatureException, IOException, URISyntaxException {
         placeOrder();
         cancelOrder();
+    }
+
+    @Test
+    public void downloadCase() throws Exception {
+        download();
     }
 
     @Test
@@ -149,8 +154,10 @@ public class PayByDemo {
         PayByClient client = getPayByClient();
 
         PlaceOrderRequest placeOrderRequest = new PlaceOrderRequest();
-
-        // Merchant order number Required
+        Map<String,String> paySceneParams = new HashMap<String,String>();
+        paySceneParams.put("redirectUrl", "http://www/notify_url.php");
+        placeOrderRequest.setPaySceneParams(paySceneParams);        
+		// Merchant order number Required
         placeOrderRequest.setMerchantOrderNo(UUID.randomUUID().toString());
         // Product name Required
         placeOrderRequest.setSubject("ipad");
@@ -412,6 +419,19 @@ public class PayByDemo {
         System.out.println("transfer2bank body=>" + JSON.toJSONString(body));
         FileUtils.writeStringToFile(new File("target/merchantOrderNo.txt"),
             placeTransferToBankOrderRequest.getMerchantOrderNo(), StandardCharsets.UTF_8);
+    }
+
+    public void download() throws Exception {
+        GetOrderStatementRequest req = new GetOrderStatementRequest();
+        req.setStatementDate("20200605");
+        PayByClient client = getPayByClient();
+        SgsRequestWrap<GetOrderStatementRequest> wrap = SgsRequestWrap.wrap(req);
+        String statementFilePath = "d:\\payby_statement_file";
+        File statementFileDir = new File(statementFilePath);
+        System.out.println("getOrderStatement request=>" + JSON.toJSONString(wrap));
+        File file = client.download(SgsApi.GET_ORDER_STATEMENT, wrap, statementFileDir);
+        System.out.println("getOrderStatement file path=>" + file.getAbsolutePath());
+        System.out.println("getOrderStatement file size=>" + file.length());
     }
 
     public static PayByClient getPayByClient()
