@@ -39,7 +39,7 @@ import com.payby.api.server.sgs.model.AmountDetail;
 import com.payby.api.server.sgs.model.ExternalMoney;
 import com.payby.api.server.sgs.model.GoodsDetail;
 import com.payby.api.server.sgs.model.TerminalDetail;
-import com.payby.api.server.sgs.request.GetOrderStatementRequest;
+import com.payby.api.server.sgs.request.GetStatementRequest;
 import com.payby.api.server.sgs.request.OrderIndexRequest;
 import com.payby.api.server.sgs.request.PlaceOrderRequest;
 import com.payby.api.server.sgs.request.PlaceRefundOrderRequest;
@@ -103,7 +103,8 @@ public class PayByDemo {
 
     @Test
     public void downloadCase() throws Exception {
-        download();
+        downloadOrderStatement();
+        downloadFundStatement();
     }
 
     @Test
@@ -421,17 +422,36 @@ public class PayByDemo {
             placeTransferToBankOrderRequest.getMerchantOrderNo(), StandardCharsets.UTF_8);
     }
 
-    public void download() throws Exception {
-        GetOrderStatementRequest req = new GetOrderStatementRequest();
+    public void downloadOrderStatement() throws Exception {
+        GetStatementRequest req = new GetStatementRequest();
+        // setting statementDate
         req.setStatementDate("20200605");
         PayByClient client = getPayByClient();
-        SgsRequestWrap<GetOrderStatementRequest> wrap = SgsRequestWrap.wrap(req);
+        SgsRequestWrap<GetStatementRequest> wrap = SgsRequestWrap.wrap(req);
         String statementFilePath = "d:\\payby_statement_file";
         File statementFileDir = new File(statementFilePath);
         System.out.println("getOrderStatement request=>" + JSON.toJSONString(wrap));
-        File file = client.download(SgsApi.GET_ORDER_STATEMENT, wrap, statementFileDir);
-        System.out.println("getOrderStatement file path=>" + file.getAbsolutePath());
-        System.out.println("getOrderStatement file size=>" + file.length());
+        SgsResponseWrap<File> responseWrap = client.download(SgsApi.GET_ORDER_STATEMENT, wrap, statementFileDir);
+        System.out.println("getOrderStatement response=>" + responseWrap);
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        System.out.println("getOrderStatement file path=>" + responseWrap.getBody().getAbsolutePath());
+        System.out.println("getOrderStatement file size=>" + responseWrap.getBody().length());
+    }
+
+    public void downloadFundStatement() throws Exception {
+        GetStatementRequest req = new GetStatementRequest();
+        // setting statementDate
+        req.setStatementDate("20200605");
+        PayByClient client = getPayByClient();
+        SgsRequestWrap<GetStatementRequest> wrap = SgsRequestWrap.wrap(req);
+        String statementFilePath = "d:\\payby_statement_file";
+        File statementFileDir = new File(statementFilePath);
+        System.out.println("getFundStatement request=>" + JSON.toJSONString(wrap));
+        SgsResponseWrap<File> responseWrap = client.download(SgsApi.GET_FUND_STATEMENT, wrap, statementFileDir);
+        System.out.println("getFundStatement response=>" + responseWrap);
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        System.out.println("getFundStatement file path=>" + responseWrap.getBody().getAbsolutePath());
+        System.out.println("getFundStatement file size=>" + responseWrap.getBody().length());
     }
 
     public static PayByClient getPayByClient()

@@ -569,16 +569,36 @@ String payByPubKey = new String(Files
 ### 4.3.1 Order Statement
 
 ```java
-        GetOrderStatementRequest req = new GetOrderStatementRequest();
-        //setting statementDate
-		req.setStatementDate("20200605");
+        GetStatementRequest req = new GetStatementRequest();
+        // setting statementDate
+        req.setStatementDate("20200605");
         PayByClient client = getPayByClient();
-        SgsRequestWrap<GetOrderStatementRequest> wrap = SgsRequestWrap.wrap(req);
-        //setting statementFileDir
-        File statementFileDir = new File("d:\\payby_statement_file");
+        SgsRequestWrap<GetStatementRequest> wrap = SgsRequestWrap.wrap(req);
+        String statementFilePath = "d:\\payby_statement_file";
+        File statementFileDir = new File(statementFilePath);
         System.out.println("getOrderStatement request=>" + JSON.toJSONString(wrap));
-        File file = client.download(SgsApi.GET_ORDER_STATEMENT, wrap, statementFileDir);
-        System.out.println("getOrderStatement file path=>" + file.getAbsolutePath());
-        System.out.println("getOrderStatement file size=>" + file.length());
+        SgsResponseWrap<File> responseWrap = client.download(SgsApi.GET_ORDER_STATEMENT, wrap, statementFileDir);
+        System.out.println("getOrderStatement response=>" + responseWrap);
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        System.out.println("getOrderStatement file path=>" + responseWrap.getBody().getAbsolutePath());
+        System.out.println("getOrderStatement file size=>" + responseWrap.getBody().length());
+```
+
+### 4.3.1 Fund Statement
+
+```java
+        GetStatementRequest req = new GetStatementRequest();
+        // setting statementDate
+        req.setStatementDate("20200605");
+        PayByClient client = getPayByClient();
+        SgsRequestWrap<GetStatementRequest> wrap = SgsRequestWrap.wrap(req);
+        String statementFilePath = "d:\\payby_statement_file";
+        File statementFileDir = new File(statementFilePath);
+        System.out.println("getFundStatement request=>" + JSON.toJSONString(wrap));
+        SgsResponseWrap<File> responseWrap = client.download(SgsApi.GET_FUND_STATEMENT, wrap, statementFileDir);
+        System.out.println("getFundStatement response=>" + responseWrap);
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        System.out.println("getFundStatement file path=>" + responseWrap.getBody().getAbsolutePath());
+        System.out.println("getFundStatement file size=>" + responseWrap.getBody().length());
 ```
 
