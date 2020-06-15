@@ -322,6 +322,8 @@ public static List<Pair<String, String>> getFixHeaders() {
 
 ### 4.1.4  Order query
 
+case 1
+
 ```java
         PayByClient client = getPayByClient();
 
@@ -338,7 +340,25 @@ public static List<Pair<String, String>> getFixHeaders() {
         System.out.println("getOrder body=>" + JSON.toJSONString(body));
 ```
 
- 
+ case 2
+
+```java
+       PayByClient client = getPayByClient();
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        //order number Required
+        orderIndexRequest.setOrderNo("13000000023101");
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetPlaceOrderResponse> responseWrap = client.execute(SgsApi.GET_ACQUIRE_ORDER, wrap);
+        System.out.println("getOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetPlaceOrderResponse body = responseWrap.getBody();
+        System.out.println("getOrder body=>" + JSON.toJSONString(body));
+```
+
+
 
 ### 4.1.5  Order refund
 
@@ -373,6 +393,8 @@ public static List<Pair<String, String>> getFixHeaders() {
 
 ### 4.1.6  Order refund query
 
+case 1
+
 ```java
         PayByClient client = getPayByClient();
 
@@ -389,7 +411,26 @@ public static List<Pair<String, String>> getFixHeaders() {
         System.out.println("getRefundOrder body=>" + JSON.toJSONString(body));
 ```
 
- 
+ case 2
+
+```java
+        PayByClient client = getPayByClient();
+
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // order number Required
+        orderIndexRequest.setOrderNo("1900000000001");
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getRefundOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetRefundOrderResponse> responseWrap = client.execute(SgsApi.GET_REFUND_ORDER, wrap);
+        System.out.println("getRefundOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetRefundOrderResponse body = responseWrap.getBody();
+        System.out.println("getRefundOrder body=>" + JSON.toJSONString(body));
+```
+
+
 
 ### 4.1.7  Transfer
 

@@ -1,4 +1,4 @@
-package payby.sgs.demo;
+package com.payby.api.client;
 
 import java.io.File;
 import java.io.IOException;
@@ -111,7 +111,8 @@ public class PayByDemo {
     public void getOrderCase()
         throws InvalidKeyException, InvalidKeySpecException, SignatureException, IOException, URISyntaxException {
         placeOrder();
-        getOrder();
+        getOrderByMerchantOrderNo();
+        getOrderByOrderNo();
     }
 
     @Test
@@ -124,7 +125,8 @@ public class PayByDemo {
     public void getRefundOrderCase()
         throws InvalidKeyException, InvalidKeySpecException, SignatureException, IOException, URISyntaxException {
         refundOrder();
-        getRefundOrder();
+        getRefundOrderByMerchantOrderNo();
+        getRefundOrderByOrderNo();
     }
 
     @Test
@@ -153,12 +155,12 @@ public class PayByDemo {
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
 
         PayByClient client = getPayByClient();
-
+        
         PlaceOrderRequest placeOrderRequest = new PlaceOrderRequest();
         Map<String,String> paySceneParams = new HashMap<String,String>();
-        paySceneParams.put("redirectUrl", "http://www/notify_url.php");
-        placeOrderRequest.setPaySceneParams(paySceneParams);        
-		// Merchant order number Required
+        paySceneParams.put("redirectUrl", "http://www.notify_url.php");
+        placeOrderRequest.setPaySceneParams(paySceneParams);   
+        // Merchant order number Required
         placeOrderRequest.setMerchantOrderNo(UUID.randomUUID().toString());
         // Product name Required
         placeOrderRequest.setSubject("ipad");
@@ -198,6 +200,8 @@ public class PayByDemo {
         System.out.println("placeOrder body=>" + JSON.toJSONString(body));
         FileUtils.writeStringToFile(new File("target/merchantOrderNo.txt"), placeOrderRequest.getMerchantOrderNo(),
             StandardCharsets.UTF_8);
+        FileUtils.writeStringToFile(new File("target/orderNo.txt"), body.getAcquireOrder().getOrderNo(),
+            StandardCharsets.UTF_8);
     }
 
     public void refundOrder()
@@ -233,6 +237,8 @@ public class PayByDemo {
 
         FileUtils.writeStringToFile(new File("target/refundMerchantOrderNo.txt"),
             placeRefundOrderRequest.getRefundMerchantOrderNo(), StandardCharsets.UTF_8);
+        FileUtils.writeStringToFile(new File("target/refundOrderNo.txt"),
+            body.getRefundOrder().getOrderNo(), StandardCharsets.UTF_8);
     }
 
     public void cancelOrder()
@@ -257,7 +263,7 @@ public class PayByDemo {
 
     }
 
-    public void getOrder()
+    public void getOrderByMerchantOrderNo()
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
 
         PayByClient client = getPayByClient();
@@ -268,6 +274,28 @@ public class PayByDemo {
         OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
         // Merchant order number Required
         orderIndexRequest.setMerchantOrderNo(merchantOrderNo);
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetPlaceOrderResponse> responseWrap = client.execute(SgsApi.GET_ACQUIRE_ORDER, wrap);
+        System.out.println("getOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetPlaceOrderResponse body = responseWrap.getBody();
+        System.out.println("getOrder body=>" + JSON.toJSONString(body));
+
+    }
+
+    public void getOrderByOrderNo()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        String orderNo =
+            FileUtils.readFileToString(new File("target/orderNo.txt"), StandardCharsets.UTF_8);
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        //order number Required
+        orderIndexRequest.setOrderNo(orderNo);
         SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
         System.out.println("getOrder request=>" + JSON.toJSONString(wrap));
 
@@ -326,7 +354,7 @@ public class PayByDemo {
 
     }
 
-    public void getRefundOrder()
+    public void getRefundOrderByMerchantOrderNo()
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
 
         PayByClient client = getPayByClient();
@@ -337,6 +365,28 @@ public class PayByDemo {
         OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
         // Merchant order number Required
         orderIndexRequest.setMerchantOrderNo(merchantOrderNo);
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getRefundOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetRefundOrderResponse> responseWrap = client.execute(SgsApi.GET_REFUND_ORDER, wrap);
+        System.out.println("getRefundOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetRefundOrderResponse body = responseWrap.getBody();
+        System.out.println("getRefundOrder body=>" + JSON.toJSONString(body));
+
+    }
+    
+    public void getRefundOrderByOrderNo()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        String refundOrderNo =
+            FileUtils.readFileToString(new File("target/refundOrderNo.txt"), StandardCharsets.UTF_8);
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // order number Required
+        orderIndexRequest.setOrderNo(refundOrderNo);
         SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
         System.out.println("getRefundOrder request=>" + JSON.toJSONString(wrap));
 
