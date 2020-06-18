@@ -1,10 +1,10 @@
-# 1  Description
+### 1  Description
 
 This guide is written for application developers who want to integrate Payby payment solution
 
-# 2 Pre-Condition
+### 2 Pre-Condition
 
-## 2.1 JDK
+#### 2.1 JDK
 
 Versions ≥ 1.8 is required.
 
@@ -20,7 +20,7 @@ Java HotSpot(TM) 64-Bit Server VM (build 25.191-b12, mixed mode)
 
 
 
-## 2.2 Maven
+#### 2.2 Maven
 
 Versions ≥ 3.0 is required.
 
@@ -40,17 +40,17 @@ OS name: "windows 7", version: "6.1", arch: "amd64", family: "windows"
 
 
 
-## 2.3  Import maven repository
+#### 2.3  Import maven repository
 
 Import local library or remote library, choose by yourself according to the user's R & D environment
 
-### 2.3.1 Download dependency
+##### 2.3.1 Download dependency
 
 git clone https://github.com/PayBy/PayBy-java.git
 
 Open download directory: PayBy-java/dependency
 
-### 2.3.2 Install local repository
+##### 2.3.2 Install local repository
 
 Move to ‘PayBy-java/dependency’ subdirectory
 
@@ -61,7 +61,7 @@ mvn install:install-file -Dfile=payby-sdk-1.3.1.jar -DpomFile=payby-sdk-1.3.1.po
 
 
 
-### 2.3.3 Deploy remote repository
+##### 2.3.3 Deploy remote repository
 
 ```shell
 mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.0.jar -DpomFile=payby-openapi-1.0.0.pom
@@ -70,7 +70,7 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 
 
 
-## 2.4 Project import maven dependency
+#### 2.4 Project import maven dependency
 
 
 
@@ -84,7 +84,7 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 
 
 
-### 2.4.1 Sdk cascade depends on specific content
+##### 2.4.1 Sdk cascade depends on specific content
 
 The specific content varies according to the actual version, execute at project root 
 
@@ -122,7 +122,7 @@ com.payby.gateway:payby-sdk:jar:1.3.1
  \- com.squareup.okhttp3:logging-interceptor:jar:3.11.0:compile
 ```
 
-###  2.4.2 Bouncycastle version special description
+#####  2.4.2 Bouncycastle version special description
 
 Because many versions of Bouncycastle Library, The version we use:
 
@@ -149,9 +149,9 @@ Using view query provided by mvn dependency.
 
 The BC dependency used by the host project. If there is a conflict, you can consider using the Maven exclude method to remove the old version
 
-# 3  Digital signature
+### 3  Digital signature
 
-## 3.1  Preparing keys
+#### 3.1  Preparing keys
 
 
 
@@ -174,14 +174,14 @@ openssl pkcs8 -in PayBy_key.pem -topk8 -nocrypt -out PayBy_key_private.pem
 
 ```
 
-## 3.2  Signature algorithm
+#### 3.2  Signature algorithm
 
 1. Using SHA256WithRSA for signature algorithm. The private key is issued by the merchant itself.
 2. Original signature rule: Requesting the original content of the body.
 3. Using UTF-8 to encode the original content.
 4. Using Base64 to encode the resulting signature.
 
-## 3.3  Encryption Algorithm
+#### 3.3  Encryption Algorithm
 
 1. The encryption algorithm uses RSA public key encryption, and the public key is issued by PayBy.
 2. The encrypted field should not be too large, generally any more than 200 bytes.
@@ -189,7 +189,7 @@ openssl pkcs8 -in PayBy_key.pem -topk8 -nocrypt -out PayBy_key_private.pem
 4. UTF-8 encoding is used for plaintext.
 5. The encryption result is encoded with Base64.
 
-## 3.4  Verify Signature Algorithm
+#### 3.4  Verify Signature Algorithm
 
 1. Using SHA256WithRSA for verify signature algorithm. The rsa public key is downloaded from the payby merchant console.
 2. Using Base64 to decode the signature, ie. decoded_sign_data.
@@ -198,11 +198,11 @@ openssl pkcs8 -in PayBy_key.pem -topk8 -nocrypt -out PayBy_key_private.pem
 
  
 
-# 4   API description
+### 4   API description
 
-## 4.1  Function description
+#### 4.1  Function description
 
-### 4.1.1 PayByClient
+##### 4.1.1 PayByClient
 
 ```java
 public static PayByClient getPayByClient()
@@ -252,7 +252,7 @@ public static List<Pair<String, String>> getFixHeaders() {
 
 
 
-### 4.1.2  Order creation
+##### 4.1.2  Order creation
 
 ```java
         PayByClient client = getPayByClient();
@@ -303,7 +303,7 @@ public static List<Pair<String, String>> getFixHeaders() {
 
 
 
-### 4.1.3  Order cancellation
+##### 4.1.3  Order cancellation
 
 ```java
         PayByClient client = getPayByClient();
@@ -323,7 +323,7 @@ public static List<Pair<String, String>> getFixHeaders() {
 
  
 
-### 4.1.4  Order query
+##### 4.1.4  Order query
 
 case 1
 
@@ -363,7 +363,7 @@ case 1
 
 
 
-### 4.1.5  Order refund
+##### 4.1.5  Order refund
 
 ```java
         PayByClient client = getPayByClient();
@@ -394,7 +394,7 @@ case 1
 
 
 
-### 4.1.6  Order refund query
+##### 4.1.6  Order refund query
 
 case 1
 
@@ -435,7 +435,7 @@ case 1
 
 
 
-### 4.1.7  Transfer
+##### 4.1.7  Transfer
 
 ```java
         PayByClient client = getPayByClient();
@@ -474,7 +474,7 @@ case 1
 
 
 
-### 4.1.8  Transfer query
+##### 4.1.8  Transfer query
 
 ```java
         PayByClient client = getPayByClient();
@@ -495,7 +495,7 @@ case 1
 
  
 
-### 4.1.9  Transfer to bank
+##### 4.1.9  Transfer to bank
 
 ```java
         PayByClient client = getPayByClient();
@@ -532,7 +532,7 @@ case 1
 
 
 
-### 4.1.10  Transfer to bank query
+##### 4.1.10  Transfer to bank query
 
 ```java
         PayByClient client = getPayByClient();
@@ -554,9 +554,9 @@ case 1
 
  
 
-## 4.2   Result notification
+#### 4.2   Result notification
 
-### 4.2.1  Verify signature
+##### 4.2.1  Verify signature
 
 ```java
 // setting payby publicKey path        
@@ -578,7 +578,7 @@ String payByPubKey = new String(Files
 
   
 
-### 4.2.2  Servlet receive messages（springmvc）
+##### 4.2.2  Servlet receive messages（springmvc）
 
 ```java
  @Override
@@ -608,9 +608,9 @@ String payByPubKey = new String(Files
   }
 ```
 
-## 4.3 Download
+#### 4.3 Download
 
-### 4.3.1 Order Statement
+##### 4.3.1 Order Statement
 
 ```java
         GetStatementRequest req = new GetStatementRequest();
@@ -628,7 +628,7 @@ String payByPubKey = new String(Files
         System.out.println("getOrderStatement file size=>" + responseWrap.getBody().length());
 ```
 
-### 4.3.1 Fund Statement
+##### 4.3.2 Fund Statement
 
 ```java
         GetStatementRequest req = new GetStatementRequest();
