@@ -305,7 +305,7 @@ public static List<Pair<String, String>> getFixHeaders() {
 
 ##### 4.1.3  Order cancellation
 
-case 1
+###### 4.1.3.1 ByMerchantOrderNo
 
 ```java
         PayByClient client = getPayByClient();
@@ -323,13 +323,13 @@ case 1
         System.out.println("cancelOrder body=>" + JSON.toJSONString(body));
 ```
 
- case 2
+###### 4.1.3.2 ByOrderNo
 
 ```java
         PayByClient client = getPayByClient();
 
         OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
-        // Merchant order number Required
+        // Order number Required
         orderIndexRequest.setOrderNo("190000000001");
         SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
         System.out.println("cancelOrder request=>" + JSON.toJSONString(wrap));
@@ -345,7 +345,7 @@ case 1
 
 ##### 4.1.4  Order query
 
-case 1
+###### 4.1.4.1 ByMerchantOrderNo
 
 ```java
         PayByClient client = getPayByClient();
@@ -363,7 +363,7 @@ case 1
         System.out.println("getOrder body=>" + JSON.toJSONString(body));
 ```
 
- case 2
+###### 4.1.4.2 ByOrderNo
 
 ```java
        PayByClient client = getPayByClient();
@@ -385,7 +385,7 @@ case 1
 
 ##### 4.1.5  Order refund
 
-case 1
+###### 4.1.5.1 ByOriginMerchantOrderNo
 
 ```java
         PayByClient client = getPayByClient();
@@ -414,7 +414,7 @@ case 1
         System.out.println("refundOrder body=>" + JSON.toJSONString(body));
 ```
 
-case 2
+###### 4.1.5.2 ByOriginOrderNo
 
 ```java
         PayByClient client = getPayByClient();
@@ -447,7 +447,7 @@ case 2
 
 ##### 4.1.6  Order refund query
 
-case 1
+###### 4.1.6.1 ByMerchantOrderNo
 
 ```java
         PayByClient client = getPayByClient();
@@ -465,7 +465,9 @@ case 1
         System.out.println("getRefundOrder body=>" + JSON.toJSONString(body));
 ```
 
- case 2
+
+
+###### 4.1.6.2 ByOrderNo
 
 ```java
         PayByClient client = getPayByClient();
