@@ -305,12 +305,32 @@ public static List<Pair<String, String>> getFixHeaders() {
 
 ##### 4.1.3  Order cancellation
 
+case 1
+
 ```java
         PayByClient client = getPayByClient();
 
         OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
         // Merchant order number Required
         orderIndexRequest.setMerchantOrderNo("M202005120001");
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("cancelOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetPlaceOrderResponse> responseWrap = client.execute(SgsApi.CANCEL_ACQUIRE_ORDER, wrap);
+        System.out.println("cancelOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetPlaceOrderResponse body = responseWrap.getBody();
+        System.out.println("cancelOrder body=>" + JSON.toJSONString(body));
+```
+
+ case 2
+
+```java
+        PayByClient client = getPayByClient();
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Merchant order number Required
+        orderIndexRequest.setOrderNo("190000000001");
         SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
         System.out.println("cancelOrder request=>" + JSON.toJSONString(wrap));
 
@@ -365,6 +385,8 @@ case 1
 
 ##### 4.1.5  Order refund
 
+case 1
+
 ```java
         PayByClient client = getPayByClient();
 
@@ -375,6 +397,35 @@ case 1
         placeRefundOrderRequest.setRefundMerchantOrderNo("M80000000001");
         // Original merchant order number
         placeRefundOrderRequest.setOriginMerchantOrderNo("M220000000001");
+        // Refund operator name Optional
+        placeRefundOrderRequest.setOperatorName("JACKMA");
+        // Refund reason name Optional
+        placeRefundOrderRequest.setReason("reason123");
+        // Notification URL Optional
+        placeRefundOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
+
+        SgsRequestWrap<PlaceRefundOrderRequest> wrap = SgsRequestWrap.wrap(placeRefundOrderRequest);
+        System.out.println("refundOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<PlaceRefundOrderResponse> responseWrap = client.execute(SgsApi.PLACE_REFUND_ORDER, wrap);
+        System.out.println("refundOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        PlaceRefundOrderResponse body = responseWrap.getBody();
+        System.out.println("refundOrder body=>" + JSON.toJSONString(body));
+```
+
+case 2
+
+```java
+        PayByClient client = getPayByClient();
+
+        PlaceRefundOrderRequest placeRefundOrderRequest = new PlaceRefundOrderRequest();
+        // Refund refund amount Required
+        placeRefundOrderRequest.setAmount(new ExternalMoney(new BigDecimal("0.1"), "AED"));
+        // Merchant order number Required
+        placeRefundOrderRequest.setRefundMerchantOrderNo("M80000000001");
+        // Original order number
+        placeRefundOrderRequest.setOriginOrderNo("19000000001");
         // Refund operator name Optional
         placeRefundOrderRequest.setOperatorName("JACKMA");
         // Refund reason name Optional
