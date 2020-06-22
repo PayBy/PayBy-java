@@ -102,7 +102,7 @@ public class PayByDemo {
         //case 1
         cancelOrderByMerchantOrderNo();
         //case 2
-        cancelOrderByOrderNo();
+//        cancelOrderByOrderNo();
         
     }
 
@@ -271,7 +271,7 @@ public class PayByDemo {
         placeRefundOrderRequest.setAmount(new ExternalMoney(new BigDecimal("0.1"), "AED"));
         // Merchant order number Required
         placeRefundOrderRequest.setRefundMerchantOrderNo(UUID.randomUUID().toString());
-        // Original merchant order number
+        // Original order number
         placeRefundOrderRequest.setOriginOrderNo(orderNo);
         // Refund operator name Optional
         placeRefundOrderRequest.setOperatorName("JACKMA");
