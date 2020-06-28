@@ -54,6 +54,7 @@ import com.payby.gateway.sdk.config.ApiConfig;
 import com.payby.gateway.sdk.config.ClientConfig;
 import com.payby.gateway.sdk.config.OkHttpClientConfig;
 import com.payby.gateway.sdk.misc.util.RsaUtil;
+import com.payby.gateway.sdk.misc.util.SignSerializationUtil;
 import com.payby.gateway.sdk.util.SignUtilTest;
 
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -613,15 +614,18 @@ public class PayByDemo {
     public void inappSignCase()
         throws IOException, URISyntaxException, InvalidKeyException, InvalidKeySpecException, SignatureException {
         InappSignContent content = new InappSignContent();
+        // iapAppId Required
         content.setIapAppId("00001");
+        // iapDeviceId Required
         content.setIapDeviceId("001");
+        // partnerId Required
         content.setIapPartnerId("20000000076");
+        // token Required
         content.setToken("daerccxxcdsda0eeda");
-        String plain = content.toString();
-        System.out.println("plain==>" + plain);
         String merchantPrivateKey = new String(Files.readAllBytes(
             Paths.get(PayByDemo.class.getClassLoader().getResource("merchant_demo_private.pem").toURI())));
-        System.out.println("sign==>" + RsaUtil.sign(plain, Charset.forName("UTF-8"), merchantPrivateKey));
+        System.out.println("plain==>" + SignSerializationUtil.serialize(content));
+        System.out.println("sign==>" + RsaUtil.sign(content, Charset.forName("UTF-8"), merchantPrivateKey));
 
     }
 

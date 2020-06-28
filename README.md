@@ -55,8 +55,8 @@ Open download directory: PayBy-java/dependency
 Move to ‘PayBy-java/dependency’ subdirectory
 
 ```shell
-mvn install:install-file -Dfile=payby-openapi-1.0.4.jar -DpomFile=payby-openapi-1.0.4.pom
-mvn install:install-file -Dfile=payby-sdk-1.3.5.jar -DpomFile=payby-sdk-1.3.5.pom
+mvn install:install-file -Dfile=payby-openapi-1.0.5.jar -DpomFile=payby-openapi-1.0.5.pom
+mvn install:install-file -Dfile=payby-sdk-1.3.6.jar -DpomFile=payby-sdk-1.3.6.pom
 ```
 
 
@@ -64,8 +64,8 @@ mvn install:install-file -Dfile=payby-sdk-1.3.5.jar -DpomFile=payby-sdk-1.3.5.po
 ##### 2.3.3 Deploy remote repository
 
 ```shell
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.4.jar -DpomFile=payby-openapi-1.0.4.pom
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.5.jar -DpomFile=payby-sdk-1.3.5.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.5.jar -DpomFile=payby-openapi-1.0.5.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.6.jar -DpomFile=payby-sdk-1.3.6.pom
 ```
 
 
@@ -78,7 +78,7 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 <dependency>
        	<groupId>com.payby.gateway</groupId>
 		<artifactId>payby-sdk</artifactId>
-		<version>1.3.5</version>
+		<version>1.3.6</version>
  </dependency>
 ```
 
@@ -97,8 +97,8 @@ mvn dependency:tree
 Get results:
 
 ```shell
-com.payby.gateway:payby-sdk:jar:1.3.5
- +- com.payby.gateway:payby-openapi:jar:1.0.4:compile
+com.payby.gateway:payby-sdk:jar:1.3.6
+ +- com.payby.gateway:payby-openapi:jar:1.0.5:compile
  +- commons-io:commons-io:jar:2.4:compile
  +- commons-codec:commons-codec:jar:1.13:compile
  +- org.projectlombok:lombok:jar:1.18.8:provided
@@ -702,15 +702,18 @@ String payByPubKey = new String(Files
 #### 4.4 InApp Signature 
 
 ```java
-  		InappSignContent content = new InappSignContent();
+        InappSignContent content = new InappSignContent();
+        // iapAppId Required
         content.setIapAppId("00001");
+        // iapDeviceId Required
         content.setIapDeviceId("001");
+        // partnerId Required
         content.setIapPartnerId("20000000076");
+        // token Required
         content.setToken("daerccxxcdsda0eeda");
-        String plain = content.toString();
-        System.out.println("plain==>" + plain);
-        String merchantPrivateKey = new String(Files.readAllBytes(            Paths.get(PayByDemo.class.getClassLoader().getResource("merchant_demo_private.pem").toURI())));
-        System.out.println("sign==>" + RsaUtil.sign(plain, Charset.forName("UTF-8"), merchantPrivateKey));
-
+        String merchantPrivateKey = new String(Files.readAllBytes(
+            Paths.get(PayByDemo.class.getClassLoader().getResource("merchant_demo_private.pem").toURI())));
+        System.out.println("plain==>" + SignSerializationUtil.serialize(content));
+        System.out.println("sign==>" + RsaUtil.sign(content, Charset.forName("UTF-8"), merchantPrivateKey));
 ```
 
