@@ -1,6 +1,6 @@
 ### 1  Description
 
-This guide is written for application developers who want to integrate Payby payment solution
+This guide is written for application developers who want to integrate PayBy payment solution
 
 ### 2 Pre-Condition
 
@@ -78,7 +78,7 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 <dependency>
        	<groupId>com.payby.gateway</groupId>
 		<artifactId>payby-sdk</artifactId>
-		<version>1.3.6</version>
+		<version>1.3.8</version>
  </dependency>
 ```
 
@@ -97,7 +97,7 @@ mvn dependency:tree
 Get results:
 
 ```shell
-com.payby.gateway:payby-sdk:jar:1.3.6
+com.payby.gateway:payby-sdk:jar:1.3.8
  +- com.payby.gateway:payby-openapi:jar:1.0.5:compile
  +- commons-io:commons-io:jar:2.4:compile
  +- commons-codec:commons-codec:jar:1.13:compile
