@@ -56,7 +56,7 @@ Move to ‘PayBy-java/dependency’ subdirectory
 
 ```shell
 mvn install:install-file -Dfile=payby-openapi-1.0.5.jar -DpomFile=payby-openapi-1.0.5.pom
-mvn install:install-file -Dfile=payby-sdk-1.3.6.jar -DpomFile=payby-sdk-1.3.6.pom
+mvn install:install-file -Dfile=payby-sdk-1.3.8.jar -DpomFile=payby-sdk-1.3.8.pom
 ```
 
 
@@ -65,7 +65,7 @@ mvn install:install-file -Dfile=payby-sdk-1.3.6.jar -DpomFile=payby-sdk-1.3.6.po
 
 ```shell
 mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.5.jar -DpomFile=payby-openapi-1.0.5.pom
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.6.jar -DpomFile=payby-sdk-1.3.6.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.8.jar -DpomFile=payby-sdk-1.3.8.pom
 ```
 
 
