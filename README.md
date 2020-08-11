@@ -159,18 +159,18 @@ Recommended operation for private key generation
 
 ```shell
 ### Generate private key
-# PayBy_key.pem Private key file name
+# merchant_key.pem Private key file name
 # 2048 Private key size, at least 2048
-openssl genrsa -out Merchant_key.pem 2048
+openssl genrsa -out merchant_key.pem 2048
 
-### Export public key
-# PayBy_key.pem Private key generated in the previous step # PayBy_key_public.pem Exported public key name
-openssl rsa -in Merchant_key.pem -out Merchant_key_public.pem -pubout
+### Export merchant public key
+# merchant_key.pem Private key generated in the previous step # merchant_public_key.pem Exported public key name
+openssl rsa -in merchant_key.pem -out merchant_public_key.pem -pubout
 
 ### Export private key for Java
-# PayBy_key.pem Private key generated in the 1st step
-# PayBy_key_Private.pem
-openssl pkcs8 -in Merchant_key.pem -topk8 -nocrypt -out Merchant_key_private.pem
+# merchant_key.pem Private key generated in the 1st step
+# merchant_private_key.pem
+openssl pkcs8 -in merchant_key.pem -topk8 -nocrypt -out merchant_private_key.pem
 
 ```
 
@@ -217,7 +217,7 @@ public static PayByClient getPayByClient()
 
         // setting pkcs8 privateKey path
         String merchantPrivateKey = new String(Files.readAllBytes(
-            Paths.get(PayByDemo.class.getClassLoader().getResource("Merchant_key_private.pem").toURI())));
+            Paths.get(PayByDemo.class.getClassLoader().getResource("merchant_private_key.pem").toURI())));
 
         // setting publicKey path
         String payByPubKey = new String(Files

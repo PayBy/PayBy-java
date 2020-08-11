@@ -587,7 +587,7 @@ public class PayByDemo {
 
         // setting pkcs8 privateKey path
         String merchantPrivateKey = new String(Files.readAllBytes(
-            Paths.get(PayByDemo.class.getClassLoader().getResource("merchant_demo_private.pem").toURI())));
+            Paths.get(PayByDemo.class.getClassLoader().getResource("merchant_private_key.pem").toURI())));
 
         // setting publicKey path
         String payByPubKey = new String(Files
