@@ -161,16 +161,16 @@ Recommended operation for private key generation
 ### Generate private key
 # PayBy_key.pem Private key file name
 # 2048 Private key size, at least 2048
-openssl genrsa -out PayBy_key.pem 2048
+openssl genrsa -out Merchant_key.pem 2048
 
 ### Export public key
 # PayBy_key.pem Private key generated in the previous step # PayBy_key_public.pem Exported public key name
-openssl rsa -in PayBy_key.pem -out PayBy_key_public.pem -pubout
+openssl rsa -in Merchant_key.pem -out Merchant_key_public.pem -pubout
 
 ### Export private key for Java
 # PayBy_key.pem Private key generated in the 1st step
 # PayBy_key_Private.pem
-openssl pkcs8 -in PayBy_key.pem -topk8 -nocrypt -out PayBy_key_private.pem
+openssl pkcs8 -in Merchant_key.pem -topk8 -nocrypt -out Merchant_key_private.pem
 
 ```
 
@@ -209,15 +209,19 @@ public static PayByClient getPayByClient()
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
         ApiConfig apiConfig = new ApiConfig();
         // setting interface url
+    
+		 // Sandbox environment URL
         apiConfig.setDomain("https://uat.test2pay.com/sgs/api");
+     	 // Production environment URL
+     	 // apiConfig.setDomain("https://api.payby.com/sgs/api");
 
         // setting pkcs8 privateKey path
         String merchantPrivateKey = new String(Files.readAllBytes(
-            Paths.get(PayByDemo.class.getClassLoader().getResource("merchant_demo_private.pem").toURI())));
+            Paths.get(PayByDemo.class.getClassLoader().getResource("Merchant_key_private.pem").toURI())));
 
         // setting publicKey path
         String payByPubKey = new String(Files
-            .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("payby_public_key.pem").toURI())));
+            .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("Payby_public_key.pem").toURI())));
 
         apiConfig.setCert(new KeyCert(merchantPrivateKey, payByPubKey));
 
