@@ -11,7 +11,10 @@ import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,19 +31,24 @@ import com.alibaba.fastjson.TypeReference;
 import com.payby.gateway.openapi.SgsApi;
 import com.payby.gateway.openapi.SgsRequestWrap;
 import com.payby.gateway.openapi.SgsResponseWrap;
+import com.payby.gateway.openapi.constant.ProtocolLangType;
 import com.payby.gateway.openapi.model.AccessoryContent;
 import com.payby.gateway.openapi.model.AmountDetail;
 import com.payby.gateway.openapi.model.ExternalMoney;
 import com.payby.gateway.openapi.model.GoodsDetail;
 import com.payby.gateway.openapi.model.InappSignContent;
 import com.payby.gateway.openapi.model.TerminalDetail;
+import com.payby.gateway.openapi.request.ApplyProtocolRequest;
+import com.payby.gateway.openapi.request.GetProtocolRequest;
 import com.payby.gateway.openapi.request.GetStatementRequest;
 import com.payby.gateway.openapi.request.OrderIndexRequest;
 import com.payby.gateway.openapi.request.PlaceOrderRequest;
 import com.payby.gateway.openapi.request.PlaceRefundOrderRequest;
 import com.payby.gateway.openapi.request.PlaceTransferOrderRequest;
 import com.payby.gateway.openapi.request.PlaceTransferToBankOrderRequest;
+import com.payby.gateway.openapi.response.ApplyProtocolResponse;
 import com.payby.gateway.openapi.response.GetPlaceOrderResponse;
+import com.payby.gateway.openapi.response.GetProtocolResponse;
 import com.payby.gateway.openapi.response.GetRefundOrderResponse;
 import com.payby.gateway.openapi.response.GetTransferOrderResponse;
 import com.payby.gateway.openapi.response.GetTransferToBankOrderResponse;
@@ -55,7 +63,6 @@ import com.payby.gateway.sdk.config.ClientConfig;
 import com.payby.gateway.sdk.config.OkHttpClientConfig;
 import com.payby.gateway.sdk.misc.util.RsaUtil;
 import com.payby.gateway.sdk.misc.util.SignSerializationUtil;
-import com.payby.gateway.sdk.util.SignUtilTest;
 
 import okhttp3.logging.HttpLoggingInterceptor;
 
@@ -106,6 +113,18 @@ public class PayByDemo {
         cancelOrderByMerchantOrderNo();
         // case 2
         // cancelOrderByOrderNo();
+
+    }
+
+    @Test
+    public void revokeOrderCase()
+        throws InvalidKeyException, InvalidKeySpecException, SignatureException, IOException, URISyntaxException {
+        placeOrder();
+
+        // case 1
+        // revokeOrderByMerchantOrderNo();
+        // case 2
+        revokeOrderByOrderNo();
 
     }
 
@@ -162,6 +181,17 @@ public class PayByDemo {
     @Test
     public void transfer2bankCase() throws Exception {
         transfer2bank();
+    }
+
+    @Test
+    public void applyProtocolCase() throws Exception {
+        applyProtocol();
+    }
+
+    @Test
+    public void getProtocolCase() throws Exception {
+        applyProtocol();
+        getProtocol();
     }
 
     @Test
@@ -316,7 +346,6 @@ public class PayByDemo {
         Assert.assertTrue(SgsApi.checkResponse(responseWrap));
         GetPlaceOrderResponse body = responseWrap.getBody();
         System.out.println("cancelOrder body=>" + JSON.toJSONString(body));
-
     }
 
     public void cancelOrderByOrderNo()
@@ -337,6 +366,49 @@ public class PayByDemo {
         Assert.assertTrue(SgsApi.checkResponse(responseWrap));
         GetPlaceOrderResponse body = responseWrap.getBody();
         System.out.println("cancelOrder body=>" + JSON.toJSONString(body));
+
+    }
+
+    public void revokeOrderByOrderNo()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        String orderNo = FileUtils.readFileToString(new File("target/orderNo.txt"), StandardCharsets.UTF_8);
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Order number Required
+        orderIndexRequest.setOrderNo(orderNo);
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("revokeOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetPlaceOrderResponse> responseWrap = client.execute(SgsApi.REVOKE_ACQUIRE_ORDER, wrap);
+        System.out.println("revokeOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetPlaceOrderResponse body = responseWrap.getBody();
+        System.out.println("revokeOrder body=>" + JSON.toJSONString(body));
+
+    }
+
+    public void revokeOrderByMerchantOrderNo()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        String merchantOrderNo =
+            FileUtils.readFileToString(new File("target/merchantOrderNo.txt"), StandardCharsets.UTF_8);
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Merchant order number Required
+        orderIndexRequest.setMerchantOrderNo(merchantOrderNo);
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("revokeOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetPlaceOrderResponse> responseWrap = client.execute(SgsApi.REVOKE_ACQUIRE_ORDER, wrap);
+        System.out.println("revokeOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetPlaceOrderResponse body = responseWrap.getBody();
+        System.out.println("revokeOrder body=>" + JSON.toJSONString(body));
 
     }
 
@@ -579,6 +651,67 @@ public class PayByDemo {
         System.out.println("getFundStatement file size=>" + responseWrap.getBody().length());
     }
 
+    public void applyProtocol() throws Exception {
+        PayByClient client = getPayByClient();
+
+        ApplyProtocolRequest applyProtocolRequest = new ApplyProtocolRequest();
+        // Merchant order number Required
+        applyProtocolRequest.setMerchantOrderNo(UUID.randomUUID().toString());
+        // langType Optional
+        applyProtocolRequest.setLangType(ProtocolLangType.EN);
+        // expiredTime Optional
+        applyProtocolRequest
+            .setExpiredTime(Date.from(LocalDateTime.now().plusHours(1).atZone(ZoneId.systemDefault()).toInstant()));
+
+        String payByPubKey = new String(Files
+            .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("payby_public_key.pem").toURI())));
+        // signerMerchantId Required
+        applyProtocolRequest
+            .setSignerMerchantId(RsaUtil.encrypt("200000001222", Charset.forName("UTF-8"), payByPubKey, 2048));
+        // protocolSceneCode Required
+        applyProtocolRequest.setProtocolSceneCode("110");
+        // Notification URL Optional
+        applyProtocolRequest.setNotifyUrl("http://yoursite.com/api/notification");
+        // protocolSceneParams Required
+        Map<String, String> protocolSceneParams = new HashMap<String, String>();
+        protocolSceneParams.put("iapDeviceId", "");
+        protocolSceneParams.put("appId", "");
+        applyProtocolRequest.setProtocolSceneParams(protocolSceneParams);
+
+        SgsRequestWrap<ApplyProtocolRequest> wrap = SgsRequestWrap.wrap(applyProtocolRequest);
+        System.out.println("applyProtocol request=>" + JSON.toJSONString(wrap));
+        SgsResponseWrap<ApplyProtocolResponse> responseWrap = client.execute(SgsApi.APPLY_PROTOCOL, wrap);
+        System.out.println("applyProtocol response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        ApplyProtocolResponse body = responseWrap.getBody();
+        System.out.println("applyProtocol body=>" + JSON.toJSONString(body));
+        FileUtils.writeStringToFile(new File("target/merchantOrderNo.txt"), applyProtocolRequest.getMerchantOrderNo(),
+            StandardCharsets.UTF_8);
+    }
+
+    public void getProtocol()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        String merchantOrderNo =
+            FileUtils.readFileToString(new File("target/merchantOrderNo.txt"), StandardCharsets.UTF_8);
+
+        GetProtocolRequest getProtocolRequest = new GetProtocolRequest();
+        // Merchant order number Required
+        getProtocolRequest.setMerchantOrderNo(merchantOrderNo);
+
+        SgsRequestWrap<GetProtocolRequest> wrap = SgsRequestWrap.wrap(getProtocolRequest);
+        System.out.println("getProtocol request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetProtocolResponse> responseWrap = client.execute(SgsApi.GET_PROTOCOL, wrap);
+        System.out.println("getProtocol response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetProtocolResponse body = responseWrap.getBody();
+        System.out.println("getProtocol body=>" + JSON.toJSONString(body));
+
+    }
+
     public static PayByClient getPayByClient()
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
         ApiConfig apiConfig = new ApiConfig();
@@ -586,8 +719,8 @@ public class PayByDemo {
         apiConfig.setDomain("https://uat.test2pay.com/sgs/api");
 
         // setting pkcs8 privateKey path
-        String merchantPrivateKey = new String(Files.readAllBytes(
-            Paths.get(PayByDemo.class.getClassLoader().getResource("merchant_private_key.pem").toURI())));
+        String merchantPrivateKey = new String(Files
+            .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("merchant_private_key.pem").toURI())));
 
         // setting publicKey path
         String payByPubKey = new String(Files

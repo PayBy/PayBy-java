@@ -55,8 +55,8 @@ Open download directory: PayBy-java/dependency
 Move to ‘PayBy-java/dependency’ subdirectory
 
 ```shell
-mvn install:install-file -Dfile=payby-openapi-1.0.5.jar -DpomFile=payby-openapi-1.0.5.pom
-mvn install:install-file -Dfile=payby-sdk-1.3.8.jar -DpomFile=payby-sdk-1.3.8.pom
+mvn install:install-file -Dfile=payby-openapi-1.0.6.jar -DpomFile=payby-openapi-1.0.6.pom
+mvn install:install-file -Dfile=payby-sdk-1.3.9.jar -DpomFile=payby-sdk-1.3.9.pom
 ```
 
 
@@ -64,8 +64,8 @@ mvn install:install-file -Dfile=payby-sdk-1.3.8.jar -DpomFile=payby-sdk-1.3.8.po
 ##### 2.3.3 Deploy remote repository
 
 ```shell
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.5.jar -DpomFile=payby-openapi-1.0.5.pom
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.8.jar -DpomFile=payby-sdk-1.3.8.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.6.jar -DpomFile=payby-openapi-1.0.6.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.9.jar -DpomFile=payby-sdk-1.3.9.pom
 ```
 
 
@@ -78,7 +78,7 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 <dependency>
        	<groupId>com.payby.gateway</groupId>
 		<artifactId>payby-sdk</artifactId>
-		<version>1.3.8</version>
+		<version>1.3.9</version>
  </dependency>
 ```
 
@@ -97,8 +97,8 @@ mvn dependency:tree
 Get results:
 
 ```shell
-com.payby.gateway:payby-sdk:jar:1.3.8
- +- com.payby.gateway:payby-openapi:jar:1.0.5:compile
+com.payby.gateway:payby-sdk:jar:1.3.9
+ +- com.payby.gateway:payby-openapi:jar:1.0.6:compile
  +- commons-io:commons-io:jar:2.4:compile
  +- commons-codec:commons-codec:jar:1.13:compile
  +- org.projectlombok:lombok:jar:1.18.8:provided
@@ -608,6 +608,89 @@ public static List<Pair<String, String>> getFixHeaders() {
         GetTransferToBankOrderResponse body = responseWrap.getBody();
         System.out.println("getTransferToBankOrder body=>" + JSON.toJSONString(body));
 ```
+
+
+
+##### 4.1.11  Order revoke
+
+```java
+        PayByClient client = getPayByClient();
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Merchant order number Required
+        orderIndexRequest.setMerchantOrderNo("M320000000002");
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("revokeOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetPlaceOrderResponse> responseWrap = client.execute(SgsApi.REVOKE_ACQUIRE_ORDER, wrap);
+        System.out.println("revokeOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetPlaceOrderResponse body = responseWrap.getBody();
+        System.out.println("revokeOrder body=>" + JSON.toJSONString(body));
+```
+
+
+
+##### 4.1.12 Protocol apply
+
+```java
+       PayByClient client = getPayByClient();
+
+        ApplyProtocolRequest applyProtocolRequest = new ApplyProtocolRequest();
+        // Merchant order number Required
+        applyProtocolRequest.setMerchantOrderNo("M320000000002");
+        // langType Optional
+        applyProtocolRequest.setLangType(ProtocolLangType.EN);
+        // expiredTime Optional
+        applyProtocolRequest        .setExpiredTime(Date.from(LocalDateTime.now().plusHours(1).atZone(ZoneId.systemDefault()).toInstant()));
+
+        String payByPubKey = new String(Files
+            .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("payby_public_key.pem").toURI())));
+        // signerMerchantId Required
+        applyProtocolRequest
+            .setSignerMerchantId(RsaUtil.encrypt("200000001222", Charset.forName("UTF-8"), payByPubKey, 2048));
+        // protocolSceneCode Required
+        applyProtocolRequest.setProtocolSceneCode("110");
+        // Notification URL Optional
+        applyProtocolRequest.setNotifyUrl("http://yoursite.com/api/notification");
+        // protocolSceneParams Required
+        Map<String, String> protocolSceneParams = new HashMap<String, String>();
+        protocolSceneParams.put("iapDeviceId", "");
+        protocolSceneParams.put("appId", "");
+        applyProtocolRequest.setProtocolSceneParams(protocolSceneParams);
+
+        SgsRequestWrap<ApplyProtocolRequest> wrap = SgsRequestWrap.wrap(applyProtocolRequest);
+        System.out.println("applyProtocol request=>" + JSON.toJSONString(wrap));
+        SgsResponseWrap<ApplyProtocolResponse> responseWrap = client.execute(SgsApi.APPLY_PROTOCOL, wrap);
+        System.out.println("applyProtocol response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        ApplyProtocolResponse body = responseWrap.getBody();
+        System.out.println("applyProtocol body=>" + JSON.toJSONString(body));
+```
+
+
+
+##### 4.1.13  Protocol query
+
+```java
+        PayByClient client = getPayByClient();
+
+
+        GetProtocolRequest getProtocolRequest = new GetProtocolRequest();
+        // Merchant order number Required
+        getProtocolRequest.setMerchantOrderNo("M320000000002");
+
+        SgsRequestWrap<GetProtocolRequest> wrap = SgsRequestWrap.wrap(getProtocolRequest);
+        System.out.println("getProtocol request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetProtocolResponse> responseWrap = client.execute(SgsApi.GET_PROTOCOL, wrap);
+        System.out.println("getProtocol response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetProtocolResponse body = responseWrap.getBody();
+        System.out.println("getProtocol body=>" + JSON.toJSONString(body));
+```
+
+
 
 
 
