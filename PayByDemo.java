@@ -206,9 +206,6 @@ public class PayByDemo {
         PayByClient client = getPayByClient();
 
         PlaceOrderRequest placeOrderRequest = new PlaceOrderRequest();
-        Map<String, String> paySceneParams = new HashMap<String, String>();
-        paySceneParams.put("redirectUrl", "http://www.notify_url.php");
-        placeOrderRequest.setPaySceneParams(paySceneParams);
         // Merchant order number Required
         placeOrderRequest.setMerchantOrderNo(UUID.randomUUID().toString());
         // Product name Required
@@ -217,7 +214,12 @@ public class PayByDemo {
         ExternalMoney totalAmount = new ExternalMoney(new BigDecimal("0.1"), "AED");
         placeOrderRequest.setTotalAmount(totalAmount);
         // Payment scenario code Required
-        placeOrderRequest.setPaySceneCode("DYNQR");
+        placeOrderRequest.setPaySceneCode("PAYPAGE");
+        // Payment scenario params Optional
+        // For payment scenario parameter relationship, please visit https://developers.payby.com/pay
+        Map<String, String> paySceneParams = new HashMap<String, String>();
+        paySceneParams.put("redirectUrl", "http://www.yoursite.com/web/paydone.html?orderId=414768633924763654");
+        placeOrderRequest.setPaySceneParams(paySceneParams);
         // Notification URL Optional
         placeOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
         // Accessory content Optional
@@ -253,7 +255,7 @@ public class PayByDemo {
         FileUtils.writeStringToFile(new File("target/orderNo.txt"), body.getAcquireOrder().getOrderNo(),
             StandardCharsets.UTF_8);
     }
-
+	
     public void refundOrderByMerchantOrderNo()
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
 

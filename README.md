@@ -263,14 +263,19 @@ public static List<Pair<String, String>> getFixHeaders() {
 
         PlaceOrderRequest placeOrderRequest = new PlaceOrderRequest();
         // Merchant order number Required
-        placeOrderRequest.setMerchantOrderNo("M202005120001");
+        placeOrderRequest.setMerchantOrderNo(UUID.randomUUID().toString());
         // Product name Required
         placeOrderRequest.setSubject("ipad");
         // Order totalAmount Required
         ExternalMoney totalAmount = new ExternalMoney(new BigDecimal("0.1"), "AED");
         placeOrderRequest.setTotalAmount(totalAmount);
         // Payment scenario code Required
-        placeOrderRequest.setPaySceneCode("DYNQR");
+        placeOrderRequest.setPaySceneCode("PAYPAGE");
+        // Payment scenario params Optional
+        // For payment scenario parameter relationship, please visit https://developers.payby.com/pay
+        Map<String, String> paySceneParams = new HashMap<String, String>();
+        paySceneParams.put("redirectUrl", "http://www.yoursite.com/web/paydone.html?orderId=414768633924763654");
+        placeOrderRequest.setPaySceneParams(paySceneParams);
         // Notification URL Optional
         placeOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
         // Accessory content Optional
@@ -291,6 +296,7 @@ public static List<Pair<String, String>> getFixHeaders() {
         accessoryContent.setGoodsDetail(goodsDetail);
         accessoryContent.setTerminalDetail(terminalDetail);
         placeOrderRequest.setAccessoryContent(accessoryContent);
+
         SgsRequestWrap<PlaceOrderRequest> wrap = SgsRequestWrap.wrap(placeOrderRequest);
 
         System.out.println("placeOrder request=>" + JSON.toJSONString(wrap));
