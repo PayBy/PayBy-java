@@ -122,9 +122,9 @@ public class PayByDemo {
         placeOrder();
 
         // case 1
-        // revokeOrderByMerchantOrderNo();
+        revokeOrderByMerchantOrderNo();
         // case 2
-        revokeOrderByOrderNo();
+        // revokeOrderByOrderNo();
 
     }
 
@@ -222,6 +222,8 @@ public class PayByDemo {
         placeOrderRequest.setPaySceneParams(paySceneParams);
         // Notification URL Optional
         placeOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
+        // Reserved Optional
+        placeOrderRequest.setReserved("order desc");
         // Accessory content Optional
         AccessoryContent accessoryContent = new AccessoryContent();
         // Amount detail Optional
@@ -241,6 +243,7 @@ public class PayByDemo {
         accessoryContent.setTerminalDetail(terminalDetail);
         placeOrderRequest.setAccessoryContent(accessoryContent);
 
+
         SgsRequestWrap<PlaceOrderRequest> wrap = SgsRequestWrap.wrap(placeOrderRequest);
 
         System.out.println("placeOrder request=>" + JSON.toJSONString(wrap));
@@ -255,7 +258,7 @@ public class PayByDemo {
         FileUtils.writeStringToFile(new File("target/orderNo.txt"), body.getAcquireOrder().getOrderNo(),
             StandardCharsets.UTF_8);
     }
-	
+
     public void refundOrderByMerchantOrderNo()
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
 
@@ -277,6 +280,8 @@ public class PayByDemo {
         placeRefundOrderRequest.setReason("reason123");
         // Notification URL Optional
         placeRefundOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
+        // Reserved Optional
+        placeRefundOrderRequest.setReserved("merchant reserved");
 
         SgsRequestWrap<PlaceRefundOrderRequest> wrap = SgsRequestWrap.wrap(placeRefundOrderRequest);
         System.out.println("refundOrder request=>" + JSON.toJSONString(wrap));
@@ -313,6 +318,8 @@ public class PayByDemo {
         placeRefundOrderRequest.setReason("reason123");
         // Notification URL Optional
         placeRefundOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
+        // Reserved Optional
+        placeRefundOrderRequest.setReserved("merchant reserved");
 
         SgsRequestWrap<PlaceRefundOrderRequest> wrap = SgsRequestWrap.wrap(placeRefundOrderRequest);
         System.out.println("refundOrder request=>" + JSON.toJSONString(wrap));
@@ -676,8 +683,8 @@ public class PayByDemo {
         applyProtocolRequest.setNotifyUrl("http://yoursite.com/api/notification");
         // protocolSceneParams Required
         Map<String, String> protocolSceneParams = new HashMap<String, String>();
-        protocolSceneParams.put("iapDeviceId", "");
-        protocolSceneParams.put("appId", "");
+        protocolSceneParams.put("iapDeviceId", "12344");
+        protocolSceneParams.put("appId", "20200923000000211");
         applyProtocolRequest.setProtocolSceneParams(protocolSceneParams);
 
         SgsRequestWrap<ApplyProtocolRequest> wrap = SgsRequestWrap.wrap(applyProtocolRequest);
@@ -750,18 +757,23 @@ public class PayByDemo {
         throws IOException, URISyntaxException, InvalidKeyException, InvalidKeySpecException, SignatureException {
         InappSignContent content = new InappSignContent();
         // iapAppId Required
-        content.setIapAppId("00001");
+        content.setIapAppId("20200625000000162");
         // iapDeviceId Required
-        content.setIapDeviceId("001");
+        content.setIapDeviceId("3221448616fc5f7ce939b41c");
         // partnerId Required
-        content.setIapPartnerId("20000000076");
+        content.setIapPartnerId("200000051604");
         // token Required
-        content.setToken("daerccxxcdsda0eeda");
+        content.setToken("ee99403a-e4b4-478b-b9c8-807afceb0283");
         String merchantPrivateKey = new String(Files.readAllBytes(
-            Paths.get(PayByDemo.class.getClassLoader().getResource("merchant_demo_private.pem").toURI())));
+            Paths.get(PayByDemo.class.getClassLoader().getResource("merchant_private_key11.pem").toURI())));
         System.out.println("plain==>" + SignSerializationUtil.serialize(content));
         System.out.println("sign==>" + RsaUtil.sign(content, Charset.forName("UTF-8"), merchantPrivateKey));
-
+        String aa =
+            "iapAppId=20200625000000162&iapDeviceId=3221448616fc5f7ce939b41c&iapPartnerId=200000051604&token=ee99403a-e4b4-478b-b9c8-807afceb0283";
+        System.out.println("sign==>" + RsaUtil.sign(aa, Charset.forName("UTF-8"), merchantPrivateKey));
+        System.out.println(RsaUtil.verifySign(aa, Charset.forName("UTF-8"),
+            RsaUtil.sign(aa, Charset.forName("UTF-8"), merchantPrivateKey),
+            "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA808yFySejefemuUQIsTKpdRIyz0+tvO3ytLFEu4/n05SZInHJxLxteQHG9YOA1F60Zju5MHRhT0qQBi4GjRBIXSA2fJywR8aeHSixbfi3J/ai3zCb6ymVoc/DrNQBFvwuq0nB5sscYHbLjPuUPqpqeXqbivqf+iutJEDZO6AFDJaoLWrlK59uChHGGcIzE9mBiPyqZTtMW8SOr6rB+FCfy+PQe8XfuHGDh8FuqjUmAlLlRypMDa5gmhoVl7ArOfWfHlZtnzoJkgN3Ba4+DCATnNLfieeEm6erocmEzc0WZrTckd+uTH3unhgq3jSuchswsxO+1GnJmPhVyGFxif05wIDAQAB"));
     }
 
 }
