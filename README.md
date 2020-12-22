@@ -55,8 +55,8 @@ Open download directory: PayBy-java/dependency
 Move to ‘PayBy-java/dependency’ subdirectory
 
 ```shell
-mvn install:install-file -Dfile=payby-openapi-1.0.6.jar -DpomFile=payby-openapi-1.0.6.pom
-mvn install:install-file -Dfile=payby-sdk-1.3.9.jar -DpomFile=payby-sdk-1.3.9.pom
+mvn install:install-file -Dfile=payby-openapi-1.0.7.jar -DpomFile=payby-openapi-1.0.7.pom
+mvn install:install-file -Dfile=payby-sdk-1.3.10.jar -DpomFile=payby-sdk-1.3.10.pom
 ```
 
 
@@ -64,8 +64,8 @@ mvn install:install-file -Dfile=payby-sdk-1.3.9.jar -DpomFile=payby-sdk-1.3.9.po
 ##### 2.3.3 Deploy remote repository
 
 ```shell
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.6.jar -DpomFile=payby-openapi-1.0.6.pom
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.9.jar -DpomFile=payby-sdk-1.3.9.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.7.jar -DpomFile=payby-openapi-1.0.7.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.10.jar -DpomFile=payby-sdk-1.3.10.pom
 ```
 
 
@@ -278,6 +278,8 @@ public static List<Pair<String, String>> getFixHeaders() {
         placeOrderRequest.setPaySceneParams(paySceneParams);
         // Notification URL Optional
         placeOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
+        // Reserved Optional
+        placeOrderRequest.setReserved("order desc");
         // Accessory content Optional
         AccessoryContent accessoryContent = new AccessoryContent();
         // Amount detail Optional
@@ -413,7 +415,8 @@ public static List<Pair<String, String>> getFixHeaders() {
         placeRefundOrderRequest.setReason("reason123");
         // Notification URL Optional
         placeRefundOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
-
+        // Reserved Optional
+        placeRefundOrderRequest.setReserved("order desc");
         SgsRequestWrap<PlaceRefundOrderRequest> wrap = SgsRequestWrap.wrap(placeRefundOrderRequest);
         System.out.println("refundOrder request=>" + JSON.toJSONString(wrap));
 
@@ -442,7 +445,8 @@ public static List<Pair<String, String>> getFixHeaders() {
         placeRefundOrderRequest.setReason("reason123");
         // Notification URL Optional
         placeRefundOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
-
+		// Reserved Optional
+        placeRefundOrderRequest.setReserved("order desc");
         SgsRequestWrap<PlaceRefundOrderRequest> wrap = SgsRequestWrap.wrap(placeRefundOrderRequest);
         System.out.println("refundOrder request=>" + JSON.toJSONString(wrap));
 
