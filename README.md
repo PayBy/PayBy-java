@@ -736,7 +736,7 @@ String payByPubKey = new String(Files
 
     String sign = req.getHeader("sign");
 
-    String body = IOUtils.toString(req.getInputStream(), "UTF-8");
+    String plain = IOUtils.toString(req.getInputStream(), "UTF-8");
 
     // setting payby publicKey path
      String payByPubKey = new String(Files.readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("payby_public_key.pem").toURI())));
