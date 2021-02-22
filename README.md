@@ -517,7 +517,7 @@ public static List<Pair<String, String>> getFixHeaders() {
             .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("payby_public_key.pem").toURI())));
         // Beneficiary Identity
         placeTransferOrderRequest
-            .setBeneficiaryIdentity(RsaUtil.encrypt("971-585812341", Charset.forName("UTF-8"), payByPubKey, 2048));
+            .setBeneficiaryIdentity(RsaUtil.encrypt("+971-585812341", Charset.forName("UTF-8"), payByPubKey, 2048));
         placeTransferOrderRequest
             .setBeneficiaryFullName(RsaUtil.encrypt("JACKMA", Charset.forName("UTF-8"), payByPubKey, 2048));
 
