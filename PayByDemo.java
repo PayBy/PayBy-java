@@ -97,6 +97,12 @@ public class PayByDemo {
         System.out.println("acquireOrder callback body=>" + callbackOrder);
 
     }
+	
+    @Test
+    public void echoCase()
+        throws InvalidKeyException, InvalidKeySpecException, SignatureException, IOException, URISyntaxException {
+        echo();
+    }
 
     @Test
     public void placeOrderCase()
@@ -697,7 +703,17 @@ public class PayByDemo {
         FileUtils.writeStringToFile(new File("target/merchantOrderNo.txt"), applyProtocolRequest.getMerchantOrderNo(),
             StandardCharsets.UTF_8);
     }
-
+	
+    public void echo()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+        PayByClient client = getPayByClient();
+        String req = "test echo";
+        SgsRequestWrap<String> wrap = SgsRequestWrap.wrap(req);
+        System.out.println("echo request=>" + JSON.toJSONString(wrap));
+        String responseWrap = client.executeEcho(SgsApi.ECHO, req);
+        System.out.println("echo response=>" + JSON.toJSONString(responseWrap));
+    }
+	
     public void getProtocol()
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
 
