@@ -613,6 +613,9 @@ public class PayByDemo {
         // Iban Required
         placeTransferToBankOrderRequest
             .setIban(RsaUtil.encrypt("5000312313111", Charset.forName("UTF-8"), payByPubKey, 2048));
+        // BeneficiaryAddress Optional
+        placeTransferToBankOrderRequest.setBeneficiaryAddress(
+            RsaUtil.encrypt("Liwa Street off Khaliffa Street", Charset.forName("UTF-8"), payByPubKey, 2048));
         // SwiftCode Optional
         placeTransferToBankOrderRequest.setSwiftCode("ARABAEADDER");
         // Transfer order amount Required
