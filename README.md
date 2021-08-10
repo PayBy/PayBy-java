@@ -715,7 +715,7 @@ public static List<Pair<String, String>> getFixHeaders() {
 
 ```
 
-##### 4.1.15  Get address
+##### 4.1.15  Crypto currency Topup address get
 
 ```java
 	  PayByClient client = getPayByClient();
