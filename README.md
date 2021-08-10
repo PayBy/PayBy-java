@@ -55,8 +55,8 @@ Open download directory: PayBy-java/dependency
 Move to ‘PayBy-java/dependency’ subdirectory
 
 ```shell
-mvn install:install-file -Dfile=payby-openapi-1.0.8.jar -DpomFile=payby-openapi-1.0.10.pom
-mvn install:install-file -Dfile=payby-sdk-1.3.11.jar -DpomFile=payby-sdk-1.3.13.pom
+mvn install:install-file -Dfile=payby-openapi-1.0.11.jar -DpomFile=payby-openapi-1.0.11.pom
+mvn install:install-file -Dfile=payby-sdk-1.3.14.jar -DpomFile=payby-sdk-1.3.14.pom
 ```
 
 
@@ -64,8 +64,8 @@ mvn install:install-file -Dfile=payby-sdk-1.3.11.jar -DpomFile=payby-sdk-1.3.13.
 ##### 2.3.3 Deploy remote repository
 
 ```shell
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.8.jar -DpomFile=payby-openapi-1.0.10.pom
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.11.jar -DpomFile=payby-sdk-1.3.13.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.11.jar -DpomFile=payby-openapi-1.0.11.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.14.jar -DpomFile=payby-sdk-1.3.14.pom
 ```
 
 
@@ -78,7 +78,7 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 <dependency>
        	<groupId>com.payby.gateway</groupId>
 		<artifactId>payby-sdk</artifactId>
-		<version>1.3.13</version>
+		<version>1.3.14</version>
  </dependency>
 ```
 
@@ -97,8 +97,8 @@ mvn dependency:tree
 Get results:
 
 ```shell
-com.payby.gateway:payby-sdk:jar:1.3.13
- +- com.payby.gateway:payby-openapi:jar:1.0.10:compile
+com.payby.gateway:payby-sdk:jar:1.3.14
+ +- com.payby.gateway:payby-openapi:jar:1.0.11:compile
  +- commons-io:commons-io:jar:2.4:compile
  +- commons-codec:commons-codec:jar:1.13:compile
  +- org.projectlombok:lombok:jar:1.18.8:provided
@@ -714,6 +714,70 @@ public static List<Pair<String, String>> getFixHeaders() {
         System.out.println("echo response=>" + JSON.toJSONString(responseWrap));
 
 ```
+
+##### 4.1.15  Get address
+
+```java
+	  PayByClient client = getPayByClient();
+        GetAddressRequest getAddressRequest = new GetAddressRequest();
+        getAddressRequest.setAssetCode("ETH");
+        getAddressRequest.setCustomerId("test001");
+        getAddressRequest.setNetwork("ETH1");
+
+        SgsRequestWrap<GetAddressRequest> wrap = SgsRequestWrap.wrap(getAddressRequest);
+        System.out.println("getAddress request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetAddressResponse> responseWrap = client.execute(SgsApi.GET_ADDRESS, wrap);
+        System.out.println("getAddress response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetAddressResponse body = responseWrap.getBody();
+        System.out.println("getAddress body=>" + JSON.toJSONString(body));
+```
+##### 4.1.16  CustomerDepositOrder page query
+
+```java
+	    PayByClient client = getPayByClient();
+
+        QueryCustomerDepositOrderPageRequest queryCustomerDepositOrderPageRequest =
+            new QueryCustomerDepositOrderPageRequest();
+        // startTime Required
+        queryCustomerDepositOrderPageRequest.setStartTime(Date.from(Instant.now().plus(Duration.ofHours(-23L))));
+        // endTime Required
+        queryCustomerDepositOrderPageRequest.setEndTime(Date.from(Instant.now()));
+
+        queryCustomerDepositOrderPageRequest.setPageParam(new PageParam(0, 10));
+        SgsRequestWrap<QueryCustomerDepositOrderPageRequest> wrap =
+            SgsRequestWrap.wrap(queryCustomerDepositOrderPageRequest);
+        System.out.println("queryCustomerDepositOrderPage request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<QueryCustomerDepositOrderPageResponse> responseWrap =
+            client.execute(SgsApi.QUERY_CUSTOMER_DEPOSIT_ORDER_PAGE, wrap);
+        System.out.println("queryCustomerDepositOrderPage response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        QueryCustomerDepositOrderPageResponse body = responseWrap.getBody();
+        System.out.println("queryCustomerDepositOrderPage body=>" + JSON.toJSONString(body));
+```
+
+##### 4.1.17  CustomerDepositOrder query
+
+```java
+	    PayByClient client = getPayByClient();
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // order number Required
+        orderIndexRequest.setOrderNo("20210809000000012");
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getCustomerDepositOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetCustomerDepositOrderResponse> responseWrap =
+            client.execute(SgsApi.GET_CUSTOMER_DEPOSIT_ORDER, wrap);
+        System.out.println("getCustomerDepositOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetCustomerDepositOrderResponse body = responseWrap.getBody();
+        System.out.println("getCustomerDepositOrder body=>" + JSON.toJSONString(body));
+```
+
+
 
 
 
