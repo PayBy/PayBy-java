@@ -55,8 +55,8 @@ Open download directory: PayBy-java/dependency
 Move to ‘PayBy-java/dependency’ subdirectory
 
 ```shell
-mvn install:install-file -Dfile=payby-openapi-1.0.11.jar -DpomFile=payby-openapi-1.0.11.pom
-mvn install:install-file -Dfile=payby-sdk-1.3.14.jar -DpomFile=payby-sdk-1.3.14.pom
+mvn install:install-file -Dfile=payby-openapi-1.0.12.jar -DpomFile=payby-openapi-1.0.12.pom
+mvn install:install-file -Dfile=payby-sdk-1.3.15.jar -DpomFile=payby-sdk-1.3.15.pom
 ```
 
 
@@ -64,8 +64,8 @@ mvn install:install-file -Dfile=payby-sdk-1.3.14.jar -DpomFile=payby-sdk-1.3.14.
 ##### 2.3.3 Deploy remote repository
 
 ```shell
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.11.jar -DpomFile=payby-openapi-1.0.11.pom
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.14.jar -DpomFile=payby-sdk-1.3.14.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.12.jar -DpomFile=payby-openapi-1.0.12.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.15.jar -DpomFile=payby-sdk-1.3.15.pom
 ```
 
 
@@ -78,7 +78,7 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 <dependency>
        	<groupId>com.payby.gateway</groupId>
 		<artifactId>payby-sdk</artifactId>
-		<version>1.3.14</version>
+		<version>1.3.15</version>
  </dependency>
 ```
 
@@ -97,8 +97,8 @@ mvn dependency:tree
 Get results:
 
 ```shell
-com.payby.gateway:payby-sdk:jar:1.3.14
- +- com.payby.gateway:payby-openapi:jar:1.0.11:compile
+com.payby.gateway:payby-sdk:jar:1.3.15
+ +- com.payby.gateway:payby-openapi:jar:1.0.12:compile
  +- commons-io:commons-io:jar:2.4:compile
  +- commons-codec:commons-codec:jar:1.13:compile
  +- org.projectlombok:lombok:jar:1.18.8:provided
@@ -775,6 +775,102 @@ public static List<Pair<String, String>> getFixHeaders() {
         Assert.assertTrue(SgsApi.checkResponse(responseWrap));
         GetCustomerDepositOrderResponse body = responseWrap.getBody();
         System.out.println("getCustomerDepositOrder body=>" + JSON.toJSONString(body));
+```
+
+##### 4.1.18 ReceiptOrder  create
+
+```java
+	     PayByClient client = getPayByClient();
+        CreateReceiptOrderRequest createReceiptOrderRequest = new CreateReceiptOrderRequest();
+        createReceiptOrderRequest.setReceiverMobileNumber("+971-585660747");
+        createReceiptOrderRequest.setReceiverEmail("pdcwb1@163.com");
+
+        Receipt receipt = new Receipt();
+        receipt.setAddress("TCA,Abu Dhabi");
+        receipt.setName("LuLu Express Fresd Market");
+        receipt.setTotalAmount(new ExternalMoney(new BigDecimal("22.30"), "AED"));
+        receipt.setRefundNo("662142002053429820210730153140");
+        receipt.setTotalBeforeVat(new ExternalMoney(new BigDecimal("22.30"), "AED"));
+        receipt.setVatAmount(new ExternalMoney(new BigDecimal("1.10"), "AED"));
+        receipt.setVatRate(new BigDecimal("5"));
+        receipt.setReceiptNo("534298");
+        receipt.setType("Y");;
+        Goods goods1 = new Goods();
+        goods1.setId("9947345013207");
+        goods1.setQuantity(BigDecimal.ONE);
+        goods1.setName1("Norwegian Salmon Steak");
+        goods1.setName2("ستيك السلمون النرويجي");
+        goods1.setAmount(new ExternalMoney(new BigDecimal("13.2"), "AED"));
+        Goods goods2 = new Goods();
+        goods2.setId("99473450132018");
+        goods2.setQuantity(new BigDecimal("5"));
+        goods2.setName1("Coca cola 350ml");
+        goods2.setName2("كوكا كولا 350 مل");
+        goods2.setAmount(new ExternalMoney(new BigDecimal("2"), "AED"));
+        receipt.setGoodsList(Arrays.asList(goods1, goods2));
+        receipt.setCount(receipt.getGoodsList().size());
+        receipt.setDate(new Date());
+        receipt.setStore("2142");
+
+        receipt.setCashier("Sajjad Ajij");
+        receipt.setCounter("6");
+        receipt.setPos("2");
+        receipt.setTel("02 3090550");
+        receipt.setTrn("100228723100003");
+        receipt.setEmail("cutomercareauh@ae.lulumea.com");
+        receipt.setNotes(
+            "Keep bill for exchange within 7 days.Valid only at issued store.*T&C Apply.Thanks you for shopping. Shop online at www.luluhypermarket.com");
+
+        receipt.setPayAmount(new ExternalMoney(new BigDecimal("23.20"), "AED"));
+        receipt.setChangeAmount(new ExternalMoney(BigDecimal.ZERO, "AED"));
+        receipt.setPaymentChannel("CASH");
+        createReceiptOrderRequest.setReceipt(receipt);
+
+        SgsRequestWrap<CreateReceiptOrderRequest> wrap = SgsRequestWrap.wrap(createReceiptOrderRequest);
+
+        System.out.println("createReceiptOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<ReceiptOrderResponse> responseWrap = client.execute(SgsApi.CREATE_DIGITAL_RECEIPT_ORDER, wrap);
+        System.out.println("createReceiptOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        ReceiptOrderResponse body = responseWrap.getBody();
+        System.out.println("createReceiptOrder body=>" + JSON.toJSONString(body));
+```
+
+##### 4.1.19 ReceiptOrder  query
+
+```java
+	    PayByClient client = getPayByClient();
+        ReceiptOrderIndexRequest orderIndexRequest = new ReceiptOrderIndexRequest();
+        // Receipt number Required
+        orderIndexRequest.setReceiptNo("534298");
+        SgsRequestWrap<ReceiptOrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+
+        System.out.println("getReceiptOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<ReceiptOrderResponse> responseWrap = client.execute(SgsApi.GET_DIGITAL_RECEIPT_ORDER, wrap);
+        System.out.println("getReceiptOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        ReceiptOrderResponse body = responseWrap.getBody();
+        System.out.println("getReceiptOrder body=>" + JSON.toJSONString(body));
+```
+
+##### 4.1.20 ReceiptOrder  notification
+
+```java
+	    PayByClient client = getPayByClient();
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Merchant order number Required
+        orderIndexRequest.setMerchantOrderNo("c277ddf7-4c5e-4420-a912-7fcc6ee2f612");
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+
+        System.out.println("notifyReceiptOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<ReceiptOrderResponse> responseWrap = client.execute(SgsApi.NOTIFY_DIGITAL_RECEIPT_ORDER, wrap);
+        System.out.println("notifyReceiptOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        ReceiptOrderResponse body = responseWrap.getBody();
+        System.out.println("notifyReceiptOrder body=>" + JSON.toJSONString(body));
 ```
 
 

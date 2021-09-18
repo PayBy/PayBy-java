@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -38,10 +39,13 @@ import com.payby.gateway.openapi.constant.ProtocolLangType;
 import com.payby.gateway.openapi.model.AccessoryContent;
 import com.payby.gateway.openapi.model.AmountDetail;
 import com.payby.gateway.openapi.model.ExternalMoney;
+import com.payby.gateway.openapi.model.Goods;
 import com.payby.gateway.openapi.model.GoodsDetail;
 import com.payby.gateway.openapi.model.InappSignContent;
+import com.payby.gateway.openapi.model.Receipt;
 import com.payby.gateway.openapi.model.TerminalDetail;
 import com.payby.gateway.openapi.request.ApplyProtocolRequest;
+import com.payby.gateway.openapi.request.CreateReceiptOrderRequest;
 import com.payby.gateway.openapi.request.GetAddressRequest;
 import com.payby.gateway.openapi.request.GetProtocolRequest;
 import com.payby.gateway.openapi.request.GetStatementRequest;
@@ -51,6 +55,7 @@ import com.payby.gateway.openapi.request.PlaceRefundOrderRequest;
 import com.payby.gateway.openapi.request.PlaceTransferOrderRequest;
 import com.payby.gateway.openapi.request.PlaceTransferToBankOrderRequest;
 import com.payby.gateway.openapi.request.QueryCustomerDepositOrderPageRequest;
+import com.payby.gateway.openapi.request.ReceiptOrderIndexRequest;
 import com.payby.gateway.openapi.response.ApplyProtocolResponse;
 import com.payby.gateway.openapi.response.GetAddressResponse;
 import com.payby.gateway.openapi.response.GetCustomerDepositOrderResponse;
@@ -64,6 +69,7 @@ import com.payby.gateway.openapi.response.PlaceRefundOrderResponse;
 import com.payby.gateway.openapi.response.PlaceTransferOrderResponse;
 import com.payby.gateway.openapi.response.PlaceTransferToBankOrderResponse;
 import com.payby.gateway.openapi.response.QueryCustomerDepositOrderPageResponse;
+import com.payby.gateway.openapi.response.ReceiptOrderResponse;
 import com.payby.gateway.sdk.PayByClient;
 import com.payby.gateway.sdk.cert.KeyCert;
 import com.payby.gateway.sdk.config.ApiConfig;
@@ -81,8 +87,6 @@ public class PayByDemo {
         // setting Partner-Id
         // UAT
         pairs.add(new ImmutablePair<>("partner-id", "200000042607"));
-        // SIM
-        // pairs.add(new ImmutablePair<>("partner-id", "200000030906"));
         // setting group-name Optional
         pairs.add(new ImmutablePair<>("group-name", ""));
         // setting branch-name Optional
@@ -114,6 +118,7 @@ public class PayByDemo {
         System.out.println("acquireOrder callback body=>" + callbackOrder);
 
     }
+
 
 
     @Test
@@ -809,7 +814,6 @@ public class PayByDemo {
         // setting interface url
         apiConfig.setDomain("https://uat.test2pay.com/sgs/api");
         // apiConfig.setDomain("https://sim.test2pay.com/sgs/api");
-
         // setting pkcs8 privateKey path
         String merchantPrivateKey = new String(Files
             .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("merchant_private_key.pem").toURI())));
@@ -923,6 +927,105 @@ public class PayByDemo {
         Assert.assertTrue(SgsApi.checkResponse(responseWrap));
         QueryCustomerDepositOrderPageResponse body = responseWrap.getBody();
         System.out.println("queryCustomerDepositOrderPage body=>" + JSON.toJSONString(body));
+    }
+
+    @Test
+    public void createReceiptOrder()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+        CreateReceiptOrderRequest createReceiptOrderRequest = new CreateReceiptOrderRequest();
+        createReceiptOrderRequest.setReceiverMobileNumber("+971-585660747");
+        createReceiptOrderRequest.setReceiverEmail("pdcwb1@163.com");
+
+        Receipt receipt = new Receipt();
+        receipt.setAddress("TCA,Abu Dhabi");
+        receipt.setName("LuLu Express Fresd Market");
+        receipt.setTotalAmount(new ExternalMoney(new BigDecimal("22.30"), "AED"));
+        receipt.setRefundNo("662142002053429820210730153140");
+        receipt.setTotalBeforeVat(new ExternalMoney(new BigDecimal("22.30"), "AED"));
+        receipt.setVatAmount(new ExternalMoney(new BigDecimal("1.10"), "AED"));
+        receipt.setVatRate(new BigDecimal("5"));
+        receipt.setReceiptNo("534298");
+        receipt.setType("Y");;
+        Goods goods1 = new Goods();
+        goods1.setId("9947345013207");
+        goods1.setQuantity(BigDecimal.ONE);
+        goods1.setName1("Norwegian Salmon Steak");
+        goods1.setName2("ستيك السلمون النرويجي");
+        goods1.setAmount(new ExternalMoney(new BigDecimal("13.2"), "AED"));
+        Goods goods2 = new Goods();
+        goods2.setId("99473450132018");
+        goods2.setQuantity(new BigDecimal("5"));
+        goods2.setName1("Coca cola 350ml");
+        goods2.setName2("كوكا كولا 350 مل");
+        goods2.setAmount(new ExternalMoney(new BigDecimal("2"), "AED"));
+        receipt.setGoodsList(Arrays.asList(goods1, goods2));
+        receipt.setCount(receipt.getGoodsList().size());
+        receipt.setDate(new Date());
+        receipt.setStore("2142");
+
+        receipt.setCashier("Sajjad Ajij");
+        receipt.setCounter("6");
+        receipt.setPos("2");
+        receipt.setTel("02 3090550");
+        receipt.setTrn("100228723100003");
+        receipt.setEmail("cutomercareauh@ae.lulumea.com");
+        receipt.setNotes(
+            "Keep bill for exchange within 7 days.Valid only at issued store.*T&C Apply.Thanks you for shopping. Shop online at www.luluhypermarket.com");
+
+        receipt.setPayAmount(new ExternalMoney(new BigDecimal("23.20"), "AED"));
+        receipt.setChangeAmount(new ExternalMoney(BigDecimal.ZERO, "AED"));
+        receipt.setPaymentChannel("CASH");
+        createReceiptOrderRequest.setReceipt(receipt);
+
+        SgsRequestWrap<CreateReceiptOrderRequest> wrap = SgsRequestWrap.wrap(createReceiptOrderRequest);
+
+        System.out.println("createReceiptOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<ReceiptOrderResponse> responseWrap = client.execute(SgsApi.CREATE_DIGITAL_RECEIPT_ORDER, wrap);
+        System.out.println("createReceiptOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        ReceiptOrderResponse body = responseWrap.getBody();
+        System.out.println("createReceiptOrder body=>" + JSON.toJSONString(body));
+    }
+
+    @Test
+    public void getReceiptOrder()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+        ReceiptOrderIndexRequest orderIndexRequest = new ReceiptOrderIndexRequest();
+        // Receipt number Required
+        orderIndexRequest.setReceiptNo("534298");
+        SgsRequestWrap<ReceiptOrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+
+        System.out.println("getReceiptOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<ReceiptOrderResponse> responseWrap = client.execute(SgsApi.GET_DIGITAL_RECEIPT_ORDER, wrap);
+        System.out.println("getReceiptOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        ReceiptOrderResponse body = responseWrap.getBody();
+        System.out.println("getReceiptOrder body=>" + JSON.toJSONString(body));
+    }
+
+    @Test
+    public void notifyReceiptOrder()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Merchant order number Required
+        orderIndexRequest.setMerchantOrderNo("c277ddf7-4c5e-4420-a912-7fcc6ee2f612");
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+
+        System.out.println("notifyReceiptOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<ReceiptOrderResponse> responseWrap = client.execute(SgsApi.NOTIFY_DIGITAL_RECEIPT_ORDER, wrap);
+        System.out.println("notifyReceiptOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        ReceiptOrderResponse body = responseWrap.getBody();
+        System.out.println("notifyReceiptOrder body=>" + JSON.toJSONString(body));
     }
 
 }
