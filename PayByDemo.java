@@ -35,6 +35,7 @@ import com.payby.gateway.openapi.SgsApi;
 import com.payby.gateway.openapi.SgsRequestWrap;
 import com.payby.gateway.openapi.SgsResponseWrap;
 import com.payby.gateway.openapi.common.PageParam;
+import com.payby.gateway.openapi.constant.ProtocolAccessType;
 import com.payby.gateway.openapi.constant.ProtocolLangType;
 import com.payby.gateway.openapi.model.AccessoryContent;
 import com.payby.gateway.openapi.model.AmountDetail;
@@ -79,6 +80,7 @@ import com.payby.gateway.sdk.misc.util.RsaUtil;
 import com.payby.gateway.sdk.misc.util.SignSerializationUtil;
 
 import okhttp3.logging.HttpLoggingInterceptor;
+
 
 public class PayByDemo {
 
@@ -762,6 +764,8 @@ public class PayByDemo {
         protocolSceneParams.put("iapDeviceId", "12344");
         protocolSceneParams.put("appId", "20200923000000211");
         applyProtocolRequest.setProtocolSceneParams(protocolSceneParams);
+		// accessType Optional
+        applyProtocolRequest.setAccessType(ProtocolAccessType.SDK);
 
         SgsRequestWrap<ApplyProtocolRequest> wrap = SgsRequestWrap.wrap(applyProtocolRequest);
         System.out.println("applyProtocol request=>" + JSON.toJSONString(wrap));
