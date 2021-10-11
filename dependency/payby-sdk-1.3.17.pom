@@ -6,7 +6,7 @@
 
 	<groupId>com.payby.gateway</groupId>
 	<artifactId>payby-sdk</artifactId>
-	<version>1.3.16</version>
+	<version>1.3.17</version>
 
 	<scm>
 		<connection>scm:git:git@gitlab.test2pay.com:gateway/payby-sgs/payby-sdk.git
