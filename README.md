@@ -55,8 +55,8 @@ Open download directory: PayBy-java/dependency
 Move to ‘PayBy-java/dependency’ subdirectory
 
 ```shell
-mvn install:install-file -Dfile=payby-openapi-1.0.13.jar -DpomFile=payby-openapi-1.0.13.pom
-mvn install:install-file -Dfile=payby-sdk-1.3.17.jar -DpomFile=payby-sdk-1.3.17.pom
+mvn install:install-file -Dfile=payby-openapi-1.0.14.jar -DpomFile=payby-openapi-1.0.14.pom
+mvn install:install-file -Dfile=payby-sdk-1.3.18.jar -DpomFile=payby-sdk-1.3.18.pom
 ```
 
 
@@ -64,8 +64,8 @@ mvn install:install-file -Dfile=payby-sdk-1.3.17.jar -DpomFile=payby-sdk-1.3.17.
 ##### 2.3.3 Deploy remote repository
 
 ```shell
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.13.jar -DpomFile=payby-openapi-1.0.13.pom
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.17.jar -DpomFile=payby-sdk-1.3.17.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.14.jar -DpomFile=payby-openapi-1.0.14.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.18.jar -DpomFile=payby-sdk-1.3.18.pom
 ```
 
 
@@ -78,7 +78,7 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 <dependency>
        	<groupId>com.payby.gateway</groupId>
 		<artifactId>payby-sdk</artifactId>
-		<version>1.3.17</version>
+		<version>1.3.18</version>
  </dependency>
 ```
 
@@ -97,8 +97,8 @@ mvn dependency:tree
 Get results:
 
 ```shell
-com.payby.gateway:payby-sdk:jar:1.3.17
- +- com.payby.gateway:payby-openapi:jar:1.0.13:compile
+com.payby.gateway:payby-sdk:jar:1.3.18
+ +- com.payby.gateway:payby-openapi:jar:1.0.14:compile
  +- commons-io:commons-io:jar:2.4:compile
  +- commons-codec:commons-codec:jar:1.13:compile
  +- org.projectlombok:lombok:jar:1.18.8:provided
@@ -466,10 +466,10 @@ public static List<Pair<String, String>> getFixHeaders() {
 ```java
         PayByClient client = getPayByClient();
 
-        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        GetRefundOrderRequest orderIndexRequest = new GetRefundOrderRequest();
         // Merchant order number Required
-        orderIndexRequest.setMerchantOrderNo("M80000000001");
-        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        orderIndexRequest.setRefundMerchantOrderNo("M80000000001");
+        SgsRequestWrap<GetRefundOrderRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
         System.out.println("getRefundOrder request=>" + JSON.toJSONString(wrap));
 
         SgsResponseWrap<GetRefundOrderResponse> responseWrap = client.execute(SgsApi.GET_REFUND_ORDER, wrap);
@@ -487,10 +487,10 @@ public static List<Pair<String, String>> getFixHeaders() {
         PayByClient client = getPayByClient();
 
 
-        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        GetRefundOrderRequest orderIndexRequest = new GetRefundOrderRequest();
         // order number Required
         orderIndexRequest.setOrderNo("1900000000001");
-        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        SgsRequestWrap<GetRefundOrderRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
         System.out.println("getRefundOrder request=>" + JSON.toJSONString(wrap));
 
         SgsResponseWrap<GetRefundOrderResponse> responseWrap = client.execute(SgsApi.GET_REFUND_ORDER, wrap);
@@ -623,12 +623,14 @@ public static List<Pair<String, String>> getFixHeaders() {
 
 ##### 4.1.11  Order revoke
 
+###### 4.1.11.1 ByMerchantOrderNo
+
 ```java
         PayByClient client = getPayByClient();
 
         OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
         // Merchant order number Required
-        orderIndexRequest.setMerchantOrderNo("M320000000002");
+        orderIndexRequest.setMerchantOrderNo("M202005120001");
         SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
         System.out.println("revokeOrder request=>" + JSON.toJSONString(wrap));
 
@@ -639,7 +641,25 @@ public static List<Pair<String, String>> getFixHeaders() {
         System.out.println("revokeOrder body=>" + JSON.toJSONString(body));
 ```
 
+###### 4.1.11.2 ByOrderNo
 
+```java
+        PayByClient client = getPayByClient();
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Order number Required
+        orderIndexRequest.setOrderNo("190000000001");
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("revokeOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetPlaceOrderResponse> responseWrap = client.execute(SgsApi.REVOKE_ACQUIRE_ORDER, wrap);
+        System.out.println("revokeOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetPlaceOrderResponse body = responseWrap.getBody();
+        System.out.println("revokeOrder body=>" + JSON.toJSONString(body));
+```
+
+ 
 
 ##### 4.1.12 Protocol apply
 
@@ -705,6 +725,8 @@ public static List<Pair<String, String>> getFixHeaders() {
 
 
 
+
+
 ##### 4.1.14  Test echo
 
 ```java
@@ -717,6 +739,8 @@ public static List<Pair<String, String>> getFixHeaders() {
         System.out.println("echo response=>" + JSON.toJSONString(responseWrap));
 
 ```
+
+
 
 ##### 4.1.15  Crypto currency Topup address get
 
@@ -736,6 +760,8 @@ public static List<Pair<String, String>> getFixHeaders() {
         GetAddressResponse body = responseWrap.getBody();
         System.out.println("getAddress body=>" + JSON.toJSONString(body));
 ```
+
+
 ##### 4.1.16  CustomerDepositOrder page query
 
 ```java
@@ -761,6 +787,8 @@ public static List<Pair<String, String>> getFixHeaders() {
         System.out.println("queryCustomerDepositOrderPage body=>" + JSON.toJSONString(body));
 ```
 
+
+
 ##### 4.1.17  CustomerDepositOrder query
 
 ```java
@@ -779,6 +807,8 @@ public static List<Pair<String, String>> getFixHeaders() {
         GetCustomerDepositOrderResponse body = responseWrap.getBody();
         System.out.println("getCustomerDepositOrder body=>" + JSON.toJSONString(body));
 ```
+
+
 
 ##### 4.1.18 ReceiptOrder  create
 
@@ -840,6 +870,8 @@ public static List<Pair<String, String>> getFixHeaders() {
         System.out.println("createReceiptOrder body=>" + JSON.toJSONString(body));
 ```
 
+
+
 ##### 4.1.19 ReceiptOrder  query
 
 ```java
@@ -857,6 +889,8 @@ public static List<Pair<String, String>> getFixHeaders() {
         ReceiptOrderResponse body = responseWrap.getBody();
         System.out.println("getReceiptOrder body=>" + JSON.toJSONString(body));
 ```
+
+
 
 ##### 4.1.20 ReceiptOrder  notification
 
@@ -878,7 +912,296 @@ public static List<Pair<String, String>> getFixHeaders() {
 
 
 
+##### 4.1.21 CryptoOrder creation
 
+```java
+        PayByClient client = getPayByClient();
+
+        PlaceCryptoOrderRequest placeOrderRequest = new PlaceCryptoOrderRequest();
+        // Merchant order number Required
+        placeOrderRequest.setMerchantOrderNo(UUID.randomUUID().toString());
+        // Product name Required
+        placeOrderRequest.setSubject("ipad");
+        // Order totalAmount Required
+        ExternalMoney totalAmount = new ExternalMoney(new BigDecimal("0.01"), "BUSD");
+        placeOrderRequest.setTotalAmount(totalAmount);
+        // Payment scenario code Required
+        placeOrderRequest.setPaySceneCode("PAYPAGE");
+        // Payment scenario params Optional
+        // For payment scenario parameter relationship, please visit https://developers.payby.com/pay
+        Map<String, String> paySceneParams = new HashMap<String, String>();
+        paySceneParams.put("redirectUrl", "http://www.yoursite.com/web/paydone.html?orderId=414768633924763654");
+        placeOrderRequest.setPaySceneParams(paySceneParams);
+        // Notification URL Optional
+        placeOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
+        // Reserved Optional
+        placeOrderRequest.setReserved("order desc");
+        // Accessory content Optional
+        com.payby.gateway.openapi.model.crypto.AccessoryContent accessoryContent =
+            new com.payby.gateway.openapi.model.crypto.AccessoryContent();
+        // Amount detail Optional
+        com.payby.gateway.openapi.model.crypto.AmountDetail amountDetail =
+            new com.payby.gateway.openapi.model.crypto.AmountDetail();
+        // Vat amount Optional
+        amountDetail.setVatAmount(new ExternalMoney(new BigDecimal("0.01"), "BUSD"));
+        // Goods detail Optional
+        com.payby.gateway.openapi.model.crypto.GoodsDetail goodsDetail =
+            new com.payby.gateway.openapi.model.crypto.GoodsDetail();
+        goodsDetail.setBody("gifts");
+        goodsDetail.setGoodsName("candy flower");
+        goodsDetail.setGoodsId("GI1005");
+        // Terminal detail Optional
+        com.payby.gateway.openapi.model.crypto.TerminalDetail terminalDetail =
+            new com.payby.gateway.openapi.model.crypto.TerminalDetail();
+        terminalDetail.setMerchantName("candy home");
+        accessoryContent.setAmountDetail(amountDetail);
+        accessoryContent.setGoodsDetail(goodsDetail);
+        accessoryContent.setTerminalDetail(terminalDetail);
+        placeOrderRequest.setAccessoryContent(accessoryContent);
+
+        SgsRequestWrap<PlaceCryptoOrderRequest> wrap = SgsRequestWrap.wrap(placeOrderRequest);
+
+        System.out.println("placeCryptoOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<PlaceCryptoOrderResponse> responseWrap = client.execute(SgsApi.PLACE_CRYPTO_ORDER, wrap);
+        System.out.println("placeCryptoOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        PlaceCryptoOrderResponse body = responseWrap.getBody();
+        System.out.println("placeCryptoOrder body=>" + JSON.toJSONString(body));
+```
+
+
+
+##### 4.1.22  CryptoOrder cancellation
+
+###### 4.1.22.1 ByMerchantOrderNo
+
+```java
+        PayByClient client = getPayByClient();
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Merchant order number Required
+        orderIndexRequest.setMerchantOrderNo("M0000001");
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("cancelCryptoOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoOrderResponse> responseWrap = client.execute(SgsApi.CANCEL_CRYPTO_ORDER, wrap);
+        System.out.println("cancelCryptoOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoOrderResponse body = responseWrap.getBody();
+        System.out.println("cancelCryptoOrder body=>" + JSON.toJSONString(body));
+```
+
+###### 4.1.22.2 ByOrderNo
+
+```java
+        PayByClient client = getPayByClient();
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Order number Required
+        orderIndexRequest.setOrderNo("190000000001");
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("cancelOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetPlaceOrderResponse> responseWrap = client.execute(SgsApi.CANCEL_ACQUIRE_ORDER, wrap);
+        System.out.println("cancelOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetPlaceOrderResponse body = responseWrap.getBody();
+        System.out.println("cancelOrder body=>" + JSON.toJSONString(body));
+```
+
+ 
+
+##### 4.1.23  Order query
+
+###### 4.1.23.1 ByMerchantOrderNo
+
+```java
+        PayByClient client = getPayByClient();
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Merchant order number Required
+        orderIndexRequest.setMerchantOrderNo("M202005120001");
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getCryptoOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoOrderResponse> responseWrap = client.execute(SgsApi.GET_CRYPTO_ORDER, wrap);
+        System.out.println("getCryptoOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoOrderResponse body = responseWrap.getBody();
+        System.out.println("getCryptoOrder body=>" + JSON.toJSONString(body));
+```
+
+###### 4.1.23.2 ByOrderNo
+
+```java
+       PayByClient client = getPayByClient();
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        //order number Required
+        orderIndexRequest.setOrderNo("13000000023101");
+         SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getCryptoOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoOrderResponse> responseWrap = client.execute(SgsApi.GET_CRYPTO_ORDER, wrap);
+        System.out.println("getCryptoOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoOrderResponse body = responseWrap.getBody();
+        System.out.println("getCryptoOrder body=>" + JSON.toJSONString(body));
+```
+
+
+
+##### 4.1.24  CryptoOrder refund
+
+###### 4.1.24.1 ByOriginMerchantOrderNo
+
+```java
+        PayByClient client = getPayByClient();
+
+        PlaceCryptoRefundOrderRequest placeRefundOrderRequest = new PlaceCryptoRefundOrderRequest();
+        // Refund refund amount Required
+        placeRefundOrderRequest.setAmount(new ExternalMoney(new BigDecimal("0.01"), "BUSD"));
+        // Merchant order number Required
+        placeRefundOrderRequest.setRefundMerchantOrderNo(UUID.randomUUID().toString());
+        // Original merchant order number
+        placeRefundOrderRequest.setOriginMerchantOrderNo(merchantOrderNo);
+        // Refund operator name Optional
+        placeRefundOrderRequest.setOperatorName("JACKMA");
+        // Refund reason name Optional
+        placeRefundOrderRequest.setReason("reason123");
+        // Notification URL Optional
+        placeRefundOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
+        // Reserved Optional
+        placeRefundOrderRequest.setReserved("merchant reserved");
+
+        SgsRequestWrap<PlaceCryptoRefundOrderRequest> wrap = SgsRequestWrap.wrap(placeRefundOrderRequest);
+        System.out.println("refundOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoRefundOrderResponse> responseWrap =
+            client.execute(SgsApi.PLACE_CRYPTO_REFUND_ORDER, wrap);
+        System.out.println("refundOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoRefundOrderResponse body = responseWrap.getBody();
+        System.out.println("refundOrder body=>" + JSON.toJSONString(body));
+
+```
+
+###### 4.1.24.2 ByOriginOrderNo
+
+```java
+        PayByClient client = getPayByClient();
+
+        PlaceCryptoRefundOrderRequest placeRefundOrderRequest = new PlaceCryptoRefundOrderRequest();
+        // Refund refund amount Required
+        placeRefundOrderRequest.setAmount(new ExternalMoney(new BigDecimal("0.1"), "AED"));
+        // Merchant order number Required
+        placeRefundOrderRequest.setRefundMerchantOrderNo(UUID.randomUUID().toString());
+        // Original order number
+        placeRefundOrderRequest.setOriginOrderNo(orderNo);
+        // Refund operator name Optional
+        placeRefundOrderRequest.setOperatorName("JACKMA");
+        // Refund reason name Optional
+        placeRefundOrderRequest.setReason("reason123");
+        // Notification URL Optional
+        placeRefundOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
+        // Reserved Optional
+        placeRefundOrderRequest.setReserved("merchant reserved");
+
+        SgsRequestWrap<PlaceCryptoRefundOrderRequest> wrap = SgsRequestWrap.wrap(placeRefundOrderRequest);
+        System.out.println("refundCryptoOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoRefundOrderResponse> responseWrap =
+            client.execute(SgsApi.PLACE_CRYPTO_REFUND_ORDER, wrap);
+        System.out.println("refundCryptoOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoRefundOrderResponse body = responseWrap.getBody();
+        System.out.println("refundCryptoOrder body=>" + JSON.toJSONString(body));
+```
+
+
+
+##### 4.1.24  CryptoOrder refund query
+
+###### 4.1.24.1 ByMerchantOrderNo
+
+```java
+        PayByClient client = getPayByClient();
+
+        GetRefundOrderRequest orderIndexRequest = new GetRefundOrderRequest();
+        // Merchant order number Required
+        orderIndexRequest.setRefundMerchantOrderNo("M80000000001");
+        SgsRequestWrap<GetRefundOrderRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getCryptoRefundOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoRefundOrderResponse> responseWrap = client.execute(SgsApi.GET_CRYPTO_REFUND_ORDER, wrap);
+        System.out.println("getCryptoRefundOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoRefundOrderResponse body = responseWrap.getBody();
+        System.out.println("getCryptoRefundOrder body=>" + JSON.toJSONString(body));
+```
+
+
+
+###### 4.1.24.2 ByOrderNo
+
+```java
+        PayByClient client = getPayByClient();
+
+
+        GetRefundOrderRequest orderIndexRequest = new GetRefundOrderRequest();
+        // order number Required
+        orderIndexRequest.setOrderNo("1900000000001");
+        SgsRequestWrap<GetRefundOrderRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getCryptoRefundOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoRefundOrderResponse> responseWrap = client.execute(SgsApi.GET_CRYPTO_REFUND_ORDER, wrap);
+        System.out.println("getCryptoRefundOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoRefundOrderResponse body = responseWrap.getBody();
+        System.out.println("getCryptoRefundOrder body=>" + JSON.toJSONString(body));
+```
+
+
+
+##### 4.1.25 CryptoOrder revoke
+
+###### 4.1.25.1 ByMerchantOrderNo
+
+```java
+        PayByClient client = getPayByClient();
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Merchant order number Required
+        orderIndexRequest.setMerchantOrderNo("M202005120001");
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("revokeCryptoOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoOrderResponse> responseWrap = client.execute(SgsApi.REVOKE_CRYPTO_ORDER, wrap);
+        System.out.println("revokeCryptoOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoOrderResponse body = responseWrap.getBody();
+        System.out.println("revokeCryptoOrder body=>" + JSON.toJSONString(body));
+```
+
+###### 4.1.25.2 ByOrderNo
+
+```java
+        PayByClient client = getPayByClient();
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Order number Required
+        orderIndexRequest.setOrderNo("190000000001");
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("revokeCryptoOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoOrderResponse> responseWrap = client.execute(SgsApi.REVOKE_CRYPTO_ORDER, wrap);
+        System.out.println("revokeCryptoOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoOrderResponse body = responseWrap.getBody();
+        System.out.println("revokeCryptoOrder body=>" + JSON.toJSONString(body));
+```
+
+ 
 
 #### 4.2   Result notification
 

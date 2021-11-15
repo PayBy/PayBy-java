@@ -49,8 +49,11 @@ import com.payby.gateway.openapi.request.ApplyProtocolRequest;
 import com.payby.gateway.openapi.request.CreateReceiptOrderRequest;
 import com.payby.gateway.openapi.request.GetAddressRequest;
 import com.payby.gateway.openapi.request.GetProtocolRequest;
+import com.payby.gateway.openapi.request.GetRefundOrderRequest;
 import com.payby.gateway.openapi.request.GetStatementRequest;
 import com.payby.gateway.openapi.request.OrderIndexRequest;
+import com.payby.gateway.openapi.request.PlaceCryptoOrderRequest;
+import com.payby.gateway.openapi.request.PlaceCryptoRefundOrderRequest;
 import com.payby.gateway.openapi.request.PlaceOrderRequest;
 import com.payby.gateway.openapi.request.PlaceRefundOrderRequest;
 import com.payby.gateway.openapi.request.PlaceTransferOrderRequest;
@@ -58,6 +61,8 @@ import com.payby.gateway.openapi.request.PlaceTransferToBankOrderRequest;
 import com.payby.gateway.openapi.request.QueryCustomerDepositOrderPageRequest;
 import com.payby.gateway.openapi.request.ReceiptOrderIndexRequest;
 import com.payby.gateway.openapi.response.ApplyProtocolResponse;
+import com.payby.gateway.openapi.response.CryptoOrderResponse;
+import com.payby.gateway.openapi.response.CryptoRefundOrderResponse;
 import com.payby.gateway.openapi.response.GetAddressResponse;
 import com.payby.gateway.openapi.response.GetCustomerDepositOrderResponse;
 import com.payby.gateway.openapi.response.GetPlaceOrderResponse;
@@ -65,6 +70,7 @@ import com.payby.gateway.openapi.response.GetProtocolResponse;
 import com.payby.gateway.openapi.response.GetRefundOrderResponse;
 import com.payby.gateway.openapi.response.GetTransferOrderResponse;
 import com.payby.gateway.openapi.response.GetTransferToBankOrderResponse;
+import com.payby.gateway.openapi.response.PlaceCryptoOrderResponse;
 import com.payby.gateway.openapi.response.PlaceOrderResponse;
 import com.payby.gateway.openapi.response.PlaceRefundOrderResponse;
 import com.payby.gateway.openapi.response.PlaceTransferOrderResponse;
@@ -81,14 +87,17 @@ import com.payby.gateway.sdk.misc.util.SignSerializationUtil;
 
 import okhttp3.logging.HttpLoggingInterceptor;
 
-
 public class PayByDemo {
 
     public static List<Pair<String, String>> getFixHeaders() {
         List<Pair<String, String>> pairs = new ArrayList<>();
         // setting Partner-Id
         // UAT
-        pairs.add(new ImmutablePair<>("partner-id", "200000042607"));
+        // pairs.add(new ImmutablePair<>("partner-id", "200000057149"));
+        // BH
+        // pairs.add(new ImmutablePair<>("partner-id", "200000329017"));
+        // SIM
+        pairs.add(new ImmutablePair<>("partner-id", "200000030907"));
         // setting group-name Optional
         pairs.add(new ImmutablePair<>("group-name", ""));
         // setting branch-name Optional
@@ -121,12 +130,95 @@ public class PayByDemo {
 
     }
 
+    @Test
+    public void verify1()
+        throws InvalidKeyException, InvalidKeySpecException, SignatureException, IOException, URISyntaxException {
+        String payByPubKey = new String(
+            Files.readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("PayBy_key11.pem").toURI())));
+        // String plain =
+        // "{\"notify_time\":\"20210908161716\",\"acquireOrder\":{\"product\":\"Basic Payment
+        // Gateway\",\"orderNo\":\"131631103323026134\",\"paySceneCode\":\"PAYPAGE\",\"subject\":\"test\",\"accessoryContent\":{\"terminalDetail\":{\"merchantName\":\"Jindou
+        // Test\"}},\"revoked\":\"false\",\"merchantOrderNo\":\"20210908201507054899\",\"expiredTime\":1631110507452,\"requestTime\":1631103307452,\"totalAmount\":{\"amount\":200,\"currency\":\"AED\"},\"payeeMid\":\"200000062604\",\"notifyUrl\":\"https://api.testsone.com/third/PayBy/payCallBack.json\",\"paymentInfo\":{\"cardInfo\":{\"expMonth\":\"05\",\"last4\":\"0008\",\"expYear\":\"31\",\"cardType\":\"DC\",\"brand\":\"MASTERCARD\"},\"payChannel\":\"BANKCARD\",\"paidTime\":1631103377845,\"payerFeeAmount\":{\"amount\":0,\"currency\":\"AED\"},\"paidAmount\":{\"amount\":200,\"currency\":\"AED\"},\"payerMid\":\"anonymousMember\"},\"status\":\"PAID_SUCCESS\"},\"_input_charset\":\"UTF-8\",\"notify_timestamp\":1631103436174,\"notify_id\":\"202109080007866651\"}";
+        String plain =
+            "{\"notify_time\":\"20210908161716\",\"acquireOrder\":{\"product\":\"Basic Payment Gateway\",\"orderNo\":\"131631103323026134\",\"paySceneCode\":\"PAYPAGE\",\"subject\":\"test\",\"accessoryContent\":{\"terminalDetail\":{\"merchantName\":\"Jindou Test\"}},\"revoked\":\"false\",\"merchantOrderNo\":\"20210908201507054899\",\"expiredTime\":1631110507452,\"requestTime\":1631103307452,\"totalAmount\":{\"amount\":200.00,\"currency\":\"AED\"},\"payeeMid\":\"200000062604\",\"notifyUrl\":\"https://api.testsone.com/third/PayBy/payCallBack.json\",\"paymentInfo\":{\"cardInfo\":{\"expMonth\":\"05\",\"last4\":\"0008\",\"expYear\":\"31\",\"cardType\":\"DC\",\"brand\":\"MASTERCARD\"},\"payChannel\":\"BANKCARD\",\"paidTime\":1631103377845,\"payerFeeAmount\":{\"amount\":0.00,\"currency\":\"AED\"},\"paidAmount\":{\"amount\":200.00,\"currency\":\"AED\"},\"payerMid\":\"anonymousMember\"},\"status\":\"PAID_SUCCESS\"},\"_input_charset\":\"UTF-8\",\"notify_timestamp\":1631103436174,\"notify_id\":\"202109080007866651\"}";
+        String sign =
+            "gHaB6LwCbE9QusYZ7csVAebSdBNxmY2jG8d9Q5Y7RU2lSfAENREGTvdDPlG6FUi0s3IT9C+KzQegJ4qA3gGMsD7MVYUdOClmVVHiIR2Ckbxm5Bpgfyw/l8qWIvxTUjblIDIQeef6t3qUaGDIyTaScufEbBSL2iFQqt1Osvz/tIoyvYMhM3ixaVYyihoAPQELwVlaJ/7hoq47/4Zmk3bPD/eeqP1R2NBhzels7tjcLroczH9Aj2gdF6OPQZM5Q0vpzYSPBCI87cBdhLTMpigZLjml7LFeJqGz8U7SHFty/34SYaSc7IPcndPSVmSLStkd+A7druRqP3zJJHuipewbMQ==";
+        // assert verify sign
+        Assert.assertTrue(RsaUtil.verifySign(plain, Charset.forName("UTF-8"), sign, payByPubKey));
 
+        GetPlaceOrderResponse callbackOrder = JSON.parseObject(plain, new TypeReference<GetPlaceOrderResponse>() {});
+
+        System.out.println("acquireOrder callback body=>" + callbackOrder);
+
+    }
 
     @Test
     public void placeOrderCase()
         throws InvalidKeyException, InvalidKeySpecException, SignatureException, IOException, URISyntaxException {
         placeOrder();
+    }
+
+    @Test
+    public void placeCryptoOrderCase()
+        throws InvalidKeyException, InvalidKeySpecException, SignatureException, IOException, URISyntaxException {
+        placeCryptoOrder();
+    }
+
+    @Test
+    public void cancelCryptoOrderCase()
+        throws InvalidKeyException, InvalidKeySpecException, SignatureException, IOException, URISyntaxException {
+        placeCryptoOrder();
+
+        // case 1
+        // cancelCryptoOrderByMerchantOrderNo();
+        // case 2
+        cancelCryptoOrderByOrderNo();
+
+    }
+
+    @Test
+    public void revokeCryptoOrderCase()
+        throws InvalidKeyException, InvalidKeySpecException, SignatureException, IOException, URISyntaxException {
+        placeCryptoOrder();
+
+        // case 1
+        // revokeCryptoOrderByMerchantOrderNo();
+        // case 2
+        revokeCryptoOrderByOrderNo();
+
+    }
+
+    @Test
+    public void refundCryptoOrderCase()
+        throws InvalidKeyException, InvalidKeySpecException, SignatureException, IOException, URISyntaxException {
+        // case 1
+        refundCryptoOrderByMerchantOrderNo();
+
+        // case 2
+        // refundCryptoOrderByOrderNo();
+    }
+
+    @Test
+    public void getRefundCryptoOrderCase()
+        throws InvalidKeyException, InvalidKeySpecException, SignatureException, IOException, URISyntaxException {
+        refundCryptoOrderByOrderNo();
+
+        // case 1
+        getRefundCryptoOrderByMerchantOrderNo();
+
+        // case 2
+        getRefundCryptoOrderByOrderNo();
+    }
+
+    @Test
+    public void getCryptoOrderCase()
+        throws InvalidKeyException, InvalidKeySpecException, SignatureException, IOException, URISyntaxException {
+        placeCryptoOrder();
+
+        // case 1
+        getCryptoOrderByMerchantOrderNo();
+        // case 2
+        // getCryptoOrderByOrderNo();
     }
 
     @Test
@@ -177,7 +269,7 @@ public class PayByDemo {
         refundOrderByMerchantOrderNo();
 
         // case 2
-        refundOrderByMerchantOrderNo();
+        // refundOrderByOrderNo();
     }
 
     @Test
@@ -199,7 +291,7 @@ public class PayByDemo {
 
     @Test
     public void getTransferOrderCase() throws Exception {
-        transfer();
+        // transfer();
         getTransferOrder();
     }
 
@@ -225,6 +317,41 @@ public class PayByDemo {
         getTransferToBankOrder();
     }
 
+    public void placeOrder1()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        PlaceOrderRequest placeOrderRequest = new PlaceOrderRequest();
+        // Merchant order number Required
+        placeOrderRequest.setMerchantOrderNo(UUID.randomUUID().toString());
+        // Product name Required
+        placeOrderRequest.setSubject("facepay");
+        // Order totalAmount Required
+        ExternalMoney totalAmount = new ExternalMoney(new BigDecimal("0.1"), "AED");
+        placeOrderRequest.setTotalAmount(totalAmount);
+        // Payment scenario code Required
+        placeOrderRequest.setPaySceneCode("AUTODEBIT");
+        // Payment scenario params Optional
+
+        Map<String, String> paySceneParams = new HashMap<String, String>();
+        paySceneParams.put("authProtocolNo", "");
+        placeOrderRequest.setPaySceneParams(paySceneParams);
+
+        SgsRequestWrap<PlaceOrderRequest> wrap = SgsRequestWrap.wrap(placeOrderRequest);
+
+        System.out.println("placeOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<PlaceOrderResponse> responseWrap = client.execute(SgsApi.PLACE_ACQUIRE_ORDER, wrap, c -> {
+            SgsResponseWrap<PlaceOrderResponse> warp = new SgsResponseWrap<PlaceOrderResponse>();
+            warp.setBody(JSON.parseObject(c, PlaceOrderResponse.class));
+            return warp;
+        });
+        System.out.println("placeOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        PlaceOrderResponse body = responseWrap.getBody();
+        System.out.println("placeOrder body=>" + JSON.toJSONString(body));
+    }
 
     public void placeOrder()
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
@@ -278,6 +405,68 @@ public class PayByDemo {
         Assert.assertTrue(SgsApi.checkResponse(responseWrap));
         PlaceOrderResponse body = responseWrap.getBody();
         System.out.println("placeOrder body=>" + JSON.toJSONString(body));
+        FileUtils.writeStringToFile(new File("target/merchantOrderNo.txt"), placeOrderRequest.getMerchantOrderNo(),
+            StandardCharsets.UTF_8);
+        FileUtils.writeStringToFile(new File("target/orderNo.txt"), body.getAcquireOrder().getOrderNo(),
+            StandardCharsets.UTF_8);
+    }
+
+    public void placeCryptoOrder()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        PlaceCryptoOrderRequest placeOrderRequest = new PlaceCryptoOrderRequest();
+        // Merchant order number Required
+        placeOrderRequest.setMerchantOrderNo(UUID.randomUUID().toString());
+        // Product name Required
+        placeOrderRequest.setSubject("ipad");
+        // Order totalAmount Required
+        ExternalMoney totalAmount = new ExternalMoney(new BigDecimal("0.01"), "BUSD");
+        placeOrderRequest.setTotalAmount(totalAmount);
+        // Payment scenario code Required
+        placeOrderRequest.setPaySceneCode("PAYPAGE");
+        // Payment scenario params Optional
+        // For payment scenario parameter relationship, please visit https://developers.payby.com/pay
+        Map<String, String> paySceneParams = new HashMap<String, String>();
+        paySceneParams.put("redirectUrl", "http://www.yoursite.com/web/paydone.html?orderId=414768633924763654");
+        placeOrderRequest.setPaySceneParams(paySceneParams);
+        // Notification URL Optional
+        placeOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
+        // Reserved Optional
+        placeOrderRequest.setReserved("order desc");
+        // Accessory content Optional
+        com.payby.gateway.openapi.model.crypto.AccessoryContent accessoryContent =
+            new com.payby.gateway.openapi.model.crypto.AccessoryContent();
+        // Amount detail Optional
+        com.payby.gateway.openapi.model.crypto.AmountDetail amountDetail =
+            new com.payby.gateway.openapi.model.crypto.AmountDetail();
+        // Vat amount Optional
+        amountDetail.setVatAmount(new ExternalMoney(new BigDecimal("0.01"), "BUSD"));
+        // Goods detail Optional
+        com.payby.gateway.openapi.model.crypto.GoodsDetail goodsDetail =
+            new com.payby.gateway.openapi.model.crypto.GoodsDetail();
+        goodsDetail.setBody("gifts");
+        goodsDetail.setGoodsName("candy flower");
+        goodsDetail.setGoodsId("GI1005");
+        // Terminal detail Optional
+        com.payby.gateway.openapi.model.crypto.TerminalDetail terminalDetail =
+            new com.payby.gateway.openapi.model.crypto.TerminalDetail();
+        terminalDetail.setMerchantName("candy home");
+        accessoryContent.setAmountDetail(amountDetail);
+        accessoryContent.setGoodsDetail(goodsDetail);
+        accessoryContent.setTerminalDetail(terminalDetail);
+        placeOrderRequest.setAccessoryContent(accessoryContent);
+
+        SgsRequestWrap<PlaceCryptoOrderRequest> wrap = SgsRequestWrap.wrap(placeOrderRequest);
+
+        System.out.println("placeCryptoOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<PlaceCryptoOrderResponse> responseWrap = client.execute(SgsApi.PLACE_CRYPTO_ORDER, wrap);
+        System.out.println("placeCryptoOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        PlaceCryptoOrderResponse body = responseWrap.getBody();
+        System.out.println("placeCryptoOrder body=>" + JSON.toJSONString(body));
         FileUtils.writeStringToFile(new File("target/merchantOrderNo.txt"), placeOrderRequest.getMerchantOrderNo(),
             StandardCharsets.UTF_8);
         FileUtils.writeStringToFile(new File("target/orderNo.txt"), body.getAcquireOrder().getOrderNo(),
@@ -373,6 +562,46 @@ public class PayByDemo {
             StandardCharsets.UTF_8);
     }
 
+    public void refundCryptoOrderByMerchantOrderNo()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        String merchantOrderNo =
+            FileUtils.readFileToString(new File("target/merchantOrderNo.txt"), StandardCharsets.UTF_8);
+
+        PlaceCryptoRefundOrderRequest placeRefundOrderRequest = new PlaceCryptoRefundOrderRequest();
+        // Refund refund amount Required
+        placeRefundOrderRequest.setAmount(new ExternalMoney(new BigDecimal("0.01"), "BUSD"));
+        // Merchant order number Required
+        placeRefundOrderRequest.setRefundMerchantOrderNo(UUID.randomUUID().toString());
+        // Original merchant order number
+        placeRefundOrderRequest.setOriginMerchantOrderNo(merchantOrderNo);
+        // Refund operator name Optional
+        placeRefundOrderRequest.setOperatorName("JACKMA");
+        // Refund reason name Optional
+        placeRefundOrderRequest.setReason("reason123");
+        // Notification URL Optional
+        placeRefundOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
+        // Reserved Optional
+        placeRefundOrderRequest.setReserved("merchant reserved");
+
+        SgsRequestWrap<PlaceCryptoRefundOrderRequest> wrap = SgsRequestWrap.wrap(placeRefundOrderRequest);
+        System.out.println("refundOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoRefundOrderResponse> responseWrap =
+            client.execute(SgsApi.PLACE_CRYPTO_REFUND_ORDER, wrap);
+        System.out.println("refundOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoRefundOrderResponse body = responseWrap.getBody();
+        System.out.println("refundOrder body=>" + JSON.toJSONString(body));
+
+        FileUtils.writeStringToFile(new File("target/refundMerchantOrderNo.txt"),
+            placeRefundOrderRequest.getRefundMerchantOrderNo(), StandardCharsets.UTF_8);
+        FileUtils.writeStringToFile(new File("target/refundOrderNo.txt"), body.getRefundOrder().getOrderNo(),
+            StandardCharsets.UTF_8);
+    }
+
     public void refundOrderByOrderNo()
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
 
@@ -411,6 +640,45 @@ public class PayByDemo {
             StandardCharsets.UTF_8);
     }
 
+    public void refundCryptoOrderByOrderNo()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        String orderNo = FileUtils.readFileToString(new File("target/orderNo.txt"), StandardCharsets.UTF_8);
+
+        PlaceCryptoRefundOrderRequest placeRefundOrderRequest = new PlaceCryptoRefundOrderRequest();
+        // Refund refund amount Required
+        placeRefundOrderRequest.setAmount(new ExternalMoney(new BigDecimal("0.1"), "AED"));
+        // Merchant order number Required
+        placeRefundOrderRequest.setRefundMerchantOrderNo(UUID.randomUUID().toString());
+        // Original order number
+        placeRefundOrderRequest.setOriginOrderNo(orderNo);
+        // Refund operator name Optional
+        placeRefundOrderRequest.setOperatorName("JACKMA");
+        // Refund reason name Optional
+        placeRefundOrderRequest.setReason("reason123");
+        // Notification URL Optional
+        placeRefundOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
+        // Reserved Optional
+        placeRefundOrderRequest.setReserved("merchant reserved");
+
+        SgsRequestWrap<PlaceCryptoRefundOrderRequest> wrap = SgsRequestWrap.wrap(placeRefundOrderRequest);
+        System.out.println("refundCryptoOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoRefundOrderResponse> responseWrap =
+            client.execute(SgsApi.PLACE_CRYPTO_REFUND_ORDER, wrap);
+        System.out.println("refundCryptoOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoRefundOrderResponse body = responseWrap.getBody();
+        System.out.println("refundCryptoOrder body=>" + JSON.toJSONString(body));
+
+        FileUtils.writeStringToFile(new File("target/refundMerchantOrderNo.txt"),
+            placeRefundOrderRequest.getRefundMerchantOrderNo(), StandardCharsets.UTF_8);
+        FileUtils.writeStringToFile(new File("target/refundOrderNo.txt"), body.getRefundOrder().getOrderNo(),
+            StandardCharsets.UTF_8);
+    }
+
     public void cancelOrderByMerchantOrderNo()
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
 
@@ -430,6 +698,27 @@ public class PayByDemo {
         Assert.assertTrue(SgsApi.checkResponse(responseWrap));
         GetPlaceOrderResponse body = responseWrap.getBody();
         System.out.println("cancelOrder body=>" + JSON.toJSONString(body));
+    }
+
+    public void cancelCryptoOrderByMerchantOrderNo()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        String merchantOrderNo =
+            FileUtils.readFileToString(new File("target/merchantOrderNo.txt"), StandardCharsets.UTF_8);
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Merchant order number Required
+        orderIndexRequest.setMerchantOrderNo(merchantOrderNo);
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("cancelCryptoOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoOrderResponse> responseWrap = client.execute(SgsApi.CANCEL_CRYPTO_ORDER, wrap);
+        System.out.println("cancelCryptoOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoOrderResponse body = responseWrap.getBody();
+        System.out.println("cancelCryptoOrder body=>" + JSON.toJSONString(body));
     }
 
     public void cancelOrderByOrderNo()
@@ -453,6 +742,27 @@ public class PayByDemo {
 
     }
 
+    public void cancelCryptoOrderByOrderNo()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        String orderNo = FileUtils.readFileToString(new File("target/orderNo.txt"), StandardCharsets.UTF_8);
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Order number Required
+        orderIndexRequest.setOrderNo(orderNo);
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("cancelCryptoOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoOrderResponse> responseWrap = client.execute(SgsApi.CANCEL_CRYPTO_ORDER, wrap);
+        System.out.println("cancelCryptoOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoOrderResponse body = responseWrap.getBody();
+        System.out.println("cancelCryptoOrder body=>" + JSON.toJSONString(body));
+
+    }
+
     public void revokeOrderByOrderNo()
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
 
@@ -470,6 +780,27 @@ public class PayByDemo {
         System.out.println("revokeOrder response=>" + JSON.toJSONString(responseWrap));
         Assert.assertTrue(SgsApi.checkResponse(responseWrap));
         GetPlaceOrderResponse body = responseWrap.getBody();
+        System.out.println("revokeOrder body=>" + JSON.toJSONString(body));
+
+    }
+
+    public void revokeCryptoOrderByOrderNo()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        String orderNo = FileUtils.readFileToString(new File("target/orderNo.txt"), StandardCharsets.UTF_8);
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Order number Required
+        orderIndexRequest.setOrderNo(orderNo);
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("revokeOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoOrderResponse> responseWrap = client.execute(SgsApi.REVOKE_CRYPTO_ORDER, wrap);
+        System.out.println("revokeOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoOrderResponse body = responseWrap.getBody();
         System.out.println("revokeOrder body=>" + JSON.toJSONString(body));
 
     }
@@ -496,6 +827,28 @@ public class PayByDemo {
 
     }
 
+    public void revokeCryptoOrderByMerchantOrderNo()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        String merchantOrderNo =
+            FileUtils.readFileToString(new File("target/merchantOrderNo.txt"), StandardCharsets.UTF_8);
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Merchant order number Required
+        orderIndexRequest.setMerchantOrderNo(merchantOrderNo);
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("revokeCryptoOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoOrderResponse> responseWrap = client.execute(SgsApi.REVOKE_CRYPTO_ORDER, wrap);
+        System.out.println("revokeCryptoOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoOrderResponse body = responseWrap.getBody();
+        System.out.println("revokeCryptoOrder body=>" + JSON.toJSONString(body));
+
+    }
+
     public void getOrderByMerchantOrderNo()
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
 
@@ -515,6 +868,28 @@ public class PayByDemo {
         Assert.assertTrue(SgsApi.checkResponse(responseWrap));
         GetPlaceOrderResponse body = responseWrap.getBody();
         System.out.println("getOrder body=>" + JSON.toJSONString(body));
+
+    }
+
+    public void getCryptoOrderByMerchantOrderNo()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        String merchantOrderNo =
+            FileUtils.readFileToString(new File("target/merchantOrderNo.txt"), StandardCharsets.UTF_8);
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Merchant order number Required
+        orderIndexRequest.setMerchantOrderNo(merchantOrderNo);
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getCryptoOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoOrderResponse> responseWrap = client.execute(SgsApi.GET_CRYPTO_ORDER, wrap);
+        System.out.println("getCryptoOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoOrderResponse body = responseWrap.getBody();
+        System.out.println("getCryptoOrder body=>" + JSON.toJSONString(body));
 
     }
 
@@ -539,13 +914,33 @@ public class PayByDemo {
 
     }
 
+    public void getCryptoOrderByOrderNo()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        String orderNo = FileUtils.readFileToString(new File("target/orderNo.txt"), StandardCharsets.UTF_8);
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // order number Required
+        orderIndexRequest.setOrderNo(orderNo);
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getCryptoOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoOrderResponse> responseWrap = client.execute(SgsApi.GET_CRYPTO_ORDER, wrap);
+        System.out.println("getCryptoOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoOrderResponse body = responseWrap.getBody();
+        System.out.println("getCryptoOrder body=>" + JSON.toJSONString(body));
+
+    }
+
     public void getTransferOrder()
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
 
         PayByClient client = getPayByClient();
 
-        String merchantOrderNo =
-            FileUtils.readFileToString(new File("target/merchantOrderNo.txt"), StandardCharsets.UTF_8);
+        String merchantOrderNo = "M061660071492";
 
         OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
         // Merchant order number Required
@@ -592,12 +987,12 @@ public class PayByDemo {
         PayByClient client = getPayByClient();
 
         String merchantOrderNo =
-            FileUtils.readFileToString(new File("target/merchantOrderNo.txt"), StandardCharsets.UTF_8);
+            FileUtils.readFileToString(new File("target/refundMerchantOrderNo.txt"), StandardCharsets.UTF_8);
 
-        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        GetRefundOrderRequest orderIndexRequest = new GetRefundOrderRequest();
         // Merchant order number Required
-        orderIndexRequest.setMerchantOrderNo(merchantOrderNo);
-        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        orderIndexRequest.setRefundMerchantOrderNo(merchantOrderNo);
+        SgsRequestWrap<GetRefundOrderRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
         System.out.println("getRefundOrder request=>" + JSON.toJSONString(wrap));
 
         SgsResponseWrap<GetRefundOrderResponse> responseWrap = client.execute(SgsApi.GET_REFUND_ORDER, wrap);
@@ -615,10 +1010,10 @@ public class PayByDemo {
 
         String refundOrderNo = FileUtils.readFileToString(new File("target/refundOrderNo.txt"), StandardCharsets.UTF_8);
 
-        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        GetRefundOrderRequest orderIndexRequest = new GetRefundOrderRequest();
         // order number Required
         orderIndexRequest.setOrderNo(refundOrderNo);
-        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        SgsRequestWrap<GetRefundOrderRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
         System.out.println("getRefundOrder request=>" + JSON.toJSONString(wrap));
 
         SgsResponseWrap<GetRefundOrderResponse> responseWrap = client.execute(SgsApi.GET_REFUND_ORDER, wrap);
@@ -626,6 +1021,50 @@ public class PayByDemo {
         Assert.assertTrue(SgsApi.checkResponse(responseWrap));
         GetRefundOrderResponse body = responseWrap.getBody();
         System.out.println("getRefundOrder body=>" + JSON.toJSONString(body));
+
+    }
+
+    public void getRefundCryptoOrderByMerchantOrderNo()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        // String merchantOrderNo =
+        // FileUtils.readFileToString(new File("target/refundMerchantOrderNo.txt"), StandardCharsets.UTF_8);
+
+        GetRefundOrderRequest orderIndexRequest = new GetRefundOrderRequest();
+        // Merchant order number Required
+        orderIndexRequest.setRefundMerchantOrderNo("7c43bd35-bd35-4d95-8042-a44984e92405");
+        SgsRequestWrap<GetRefundOrderRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getCryptoRefundOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoRefundOrderResponse> responseWrap = client.execute(SgsApi.GET_CRYPTO_REFUND_ORDER, wrap);
+        System.out.println("getCryptoRefundOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoRefundOrderResponse body = responseWrap.getBody();
+        System.out.println("getCryptoRefundOrder body=>" + JSON.toJSONString(body));
+
+    }
+
+    public void getRefundCryptoOrderByOrderNo()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        // String refundOrderNo = FileUtils.readFileToString(new File("target/refundOrderNo.txt"),
+        // StandardCharsets.UTF_8);
+
+        GetRefundOrderRequest orderIndexRequest = new GetRefundOrderRequest();
+        // order number Required
+        orderIndexRequest.setOrderNo("131635819247004207");
+        SgsRequestWrap<GetRefundOrderRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getCryptoRefundOrder request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CryptoRefundOrderResponse> responseWrap = client.execute(SgsApi.GET_CRYPTO_REFUND_ORDER, wrap);
+        System.out.println("getCryptoRefundOrder response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CryptoRefundOrderResponse body = responseWrap.getBody();
+        System.out.println("getCryptoRefundOrder body=>" + JSON.toJSONString(body));
 
     }
 
@@ -666,6 +1105,16 @@ public class PayByDemo {
 
         FileUtils.writeStringToFile(new File("target/merchantOrderNo.txt"),
             placeTransferOrderRequest.getMerchantOrderNo(), StandardCharsets.UTF_8);
+    }
+
+    public static void main(String[] str) throws Exception {
+        String key =
+            "MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCxpDAKCCFyGUezg2UkA+QSbqCVhrQ0nP1MVqiMNgv5yFnWIinCWStY+IEFaudco42P2cXp8kPfXk1QY4dyiPqoAkYntoAtKAT4Rl/VLYWrKqcqHNJUouQNScOXz3skbAWKbkmJc8/mfyDkI/9fDA+H5Sezh6Wja7GVmO2s9A9DCF0htNycbTIujMQgPB+NvLO6UCJvg+CWKLVTHYd4zMSWEq0+iCCILBG2jYpJ2oX38da2rxBXQMp8u6QckVdI0rA6SaYSlDqBMzh3UcWSpwoHOzDnwZ+5wlKVakTcAAzqZKv3uihngW9c0XdM8mJlOb6UuLs2BHWmmQZBv9LXXb7PAgMBAAECggEAfJiLtU2Un+HJX8jGVOeBvcfoTFhp5wlBxJx3pbh21+DF2iKmJZHDjKjoXfNoiZqRvRbi8T8iifYrxjm5FAWtwc+ug0ZHSuTp73X026INQkwtaaVDhWenCwb08HLvjVFS5ZCLdaRMawA6AqqZAIKGFiwNl6eJ70CnEyVrd0bLuZhmBQHpvprl+z4S2iCNabEVLu6mhZrBgFFlMqfpS8jHR/FsqRRjIM29WoXKA8sZ9IyZ9FRFOHl9Ws2SYcpL3He1WJ2aI3tnF1F7r8Pi8Quu6QOJOVlMr+UGEAQDZAAfs0nDMTGyKUu6K9VGoHy7iO15CwXzogMsrFPAH49Arsk7SQKBgQDYIyK+ud4ABQ5mGt+UKit5Ik7mD3ZHsIphDrBV3juTnxo6bYB/aknoroic45jdgqw51KXED/6IEXtbcW5kKuKTrUH/ry9YZNsmiNn9PaqNGhFcMISEQ+nnbvfTh9iFrCQWNekelqg4ljdQhjSON2Rpy05g003PDlVMWxPLy81PLQKBgQDSZ3p4o1QZBwaEbNRkFH+Y8oFlyVT7mvJxlVXgMGxRMJMTB2El0aFpZ4Zem25Ai0ocJTpFQzeZ1lYaXp92ZrxKgZi5R0+jmnpZOLxYxRdPP9pDIx9g7I4FCdfYOyJ3sQ8calMpOHyRSJRbX5B00b2j0oEiEHlXTwV/tOXYgjSjawKBgA7d+9natyaRMnhbiN2MOQlQDtVMYvpzblFWzVJawwZYf1ldhuU8znCu8L65+R3jiy0/L1fZMczyRuX3W3yQZp154XxQ9JTD+z8fUr9UqpKiJGeO/s6KTWCaBXoLch1fxeuxMaPlARVDX/KuCJdvv/x2+6E1Z7jCZ6Ok8CuojSrRAoGAb5BK0jjYWMTu4bzLCZ4M4k6D6jLNCvRn5W4nsM48QPieo5JgIqt7CObJytRjq3mv/CiJMzym+L07vpO5vhBPeroo/uUfB0Lb6P86b19iMrVKyBqRgtUroORNPOxuJEUQHCMMoWjANFDlyWVstWSZR4pQyn0tueu+oK6MyTaRLq0CgYBUhf4Bx3rFsBPKRTjpRTaC8o7YceTcH/gltkF+r9liSkd+EBnIB4n47JiEhivhgVVATf70vDIp5hMzTFM80fy9X0oycB8Buc1o7pQC4UXbuaOkEEyWjjI5+mI3g175ihPcAnVXl7kYlIx8rlOREGgj/btcCod6OEmsSj0RqPugPg==";
+        String a = RsaUtil.decrypt(
+            "nNwrRMrSu7ILvXJpUuSjUEHx2HYXfe0Ifq0d0XkZSfIX6t3Si2F9LDv2gGqleLHCLLzkl75xNFVKf0kUQix/g0/2tl7prPcztXT8svv1TrnqVY/r1mqLn0IB2Z07U+7BjYeGziyctcZtSs/Qwp6OydNrxlOrZMobbelRzIQmftRBuQT2ywp0U4+XiwW5g7qO+45pXbYKxiDDW7TqaXX0voYHMU4GhEKxxbS4tqWNHYipg3qhtlxHmc5oy221nV4xXTBm6c8/bgWoo8JjwJ8r4DPQe7hWhnw7thenr6hO2xP+5liwV2JvUiPJi75Wp+3mYOMfB9MEPpAe3H03hw5VpA==",
+            Charset.forName("UTF-8"), key, 2048);
+        System.out.println(a + "ddd");
+
     }
 
     public void transfer2bank() throws Exception {
@@ -750,8 +1199,8 @@ public class PayByDemo {
         applyProtocolRequest
             .setExpiredTime(Date.from(LocalDateTime.now().plusHours(1).atZone(ZoneId.systemDefault()).toInstant()));
 
-        String payByPubKey = new String(Files
-            .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("payby_public_key.pem").toURI())));
+        String payByPubKey = new String(Files.readAllBytes(
+            Paths.get(PayByDemo.class.getClassLoader().getResource("sim_200000030907_payby_public_key.pem").toURI())));
         // signerMerchantId Required
         applyProtocolRequest
             .setSignerMerchantId(RsaUtil.encrypt("200000001222", Charset.forName("UTF-8"), payByPubKey, 2048));
@@ -761,11 +1210,13 @@ public class PayByDemo {
         applyProtocolRequest.setNotifyUrl("http://yoursite.com/api/notification");
         // protocolSceneParams Required
         Map<String, String> protocolSceneParams = new HashMap<String, String>();
-        protocolSceneParams.put("iapDeviceId", "12344");
-        protocolSceneParams.put("appId", "20200923000000211");
+        // protocolSceneParams.put("iapDeviceId", "12344");
+        // protocolSceneParams.put("appId", "20200923000000211");
+        protocolSceneParams.put("redirectUrl", "http://www.163.com");
         applyProtocolRequest.setProtocolSceneParams(protocolSceneParams);
-		// accessType Optional
-        applyProtocolRequest.setAccessType(ProtocolAccessType.SDK);
+
+        // accessType Optional
+        applyProtocolRequest.setAccessType(ProtocolAccessType.H5);
 
         SgsRequestWrap<ApplyProtocolRequest> wrap = SgsRequestWrap.wrap(applyProtocolRequest);
         System.out.println("applyProtocol request=>" + JSON.toJSONString(wrap));
@@ -816,15 +1267,17 @@ public class PayByDemo {
         throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
         ApiConfig apiConfig = new ApiConfig();
         // setting interface url
-        apiConfig.setDomain("https://uat.test2pay.com/sgs/api");
-        // apiConfig.setDomain("https://sim.test2pay.com/sgs/api");
+        // apiConfig.setDomain("https://uat.test2pay.com/sgs/api");
+        // apiConfig.setDomain("https://bh-uat.test2pay.com/sgs/api");
+        apiConfig.setDomain("https://sim.test2pay.com/sgs/api");
+
         // setting pkcs8 privateKey path
-        String merchantPrivateKey = new String(Files
-            .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("merchant_private_key.pem").toURI())));
+        String merchantPrivateKey = new String(Files.readAllBytes(Paths
+            .get(PayByDemo.class.getClassLoader().getResource("sim_200000030907_merchant_private_key.pem").toURI())));
 
         // setting publicKey path
-        String payByPubKey = new String(Files
-            .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("payby_public_key.pem").toURI())));
+        String payByPubKey = new String(Files.readAllBytes(
+            Paths.get(PayByDemo.class.getClassLoader().getResource("sim_200000030907_payby_public_key.pem").toURI())));
 
         apiConfig.setCert(new KeyCert(merchantPrivateKey, payByPubKey));
 
