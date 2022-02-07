@@ -66,7 +66,7 @@ public class SamplePseudoCode {
             signature = Signature.getInstance("SHA256WithRSA");
             signature.initVerify(publicKey);
             signature.update(responseBody.getBytes("UTF-8"));
-            return signature.verify(sign.getBytes("UTF-8"));
+            return signature.verify(Base64.decodeBase64(sign));
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
