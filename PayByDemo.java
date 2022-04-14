@@ -46,6 +46,8 @@ import com.payby.gateway.openapi.model.InappSignContent;
 import com.payby.gateway.openapi.model.Receipt;
 import com.payby.gateway.openapi.model.TerminalDetail;
 import com.payby.gateway.openapi.request.ApplyProtocolRequest;
+import com.payby.gateway.openapi.request.CalculateFundoutRequest;
+import com.payby.gateway.openapi.request.CardIndexRequest;
 import com.payby.gateway.openapi.request.CreateReceiptOrderRequest;
 import com.payby.gateway.openapi.request.GetAddressRequest;
 import com.payby.gateway.openapi.request.GetProtocolRequest;
@@ -61,13 +63,16 @@ import com.payby.gateway.openapi.request.PlaceTransferToBankOrderRequest;
 import com.payby.gateway.openapi.request.QueryCustomerDepositOrderPageRequest;
 import com.payby.gateway.openapi.request.ReceiptOrderIndexRequest;
 import com.payby.gateway.openapi.response.ApplyProtocolResponse;
+import com.payby.gateway.openapi.response.CalculateFundoutResponse;
 import com.payby.gateway.openapi.response.CryptoOrderResponse;
 import com.payby.gateway.openapi.response.CryptoRefundOrderResponse;
 import com.payby.gateway.openapi.response.GetAddressResponse;
 import com.payby.gateway.openapi.response.GetCustomerDepositOrderResponse;
+import com.payby.gateway.openapi.response.GetFundoutAbilityListResponse;
 import com.payby.gateway.openapi.response.GetPlaceOrderResponse;
 import com.payby.gateway.openapi.response.GetProtocolResponse;
 import com.payby.gateway.openapi.response.GetRefundOrderResponse;
+import com.payby.gateway.openapi.response.GetSaveCardResponse;
 import com.payby.gateway.openapi.response.GetTransferOrderResponse;
 import com.payby.gateway.openapi.response.GetTransferToBankOrderResponse;
 import com.payby.gateway.openapi.response.PlaceCryptoOrderResponse;
@@ -95,9 +100,9 @@ public class PayByDemo {
         // UAT
         // pairs.add(new ImmutablePair<>("partner-id", "200000057149"));
         // BH
-        // pairs.add(new ImmutablePair<>("partner-id", "200000329017"));
+        pairs.add(new ImmutablePair<>("partner-id", "200000030906"));
         // SIM
-        pairs.add(new ImmutablePair<>("partner-id", "200000030907"));
+        // pairs.add(new ImmutablePair<>("partner-id", "200000030907"));
         // setting group-name Optional
         pairs.add(new ImmutablePair<>("group-name", ""));
         // setting branch-name Optional
@@ -114,19 +119,19 @@ public class PayByDemo {
     @Test
     public void verify()
         throws InvalidKeyException, InvalidKeySpecException, SignatureException, IOException, URISyntaxException {
-        String payByPubKey = new String(Files
-            .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("payby_public_key.pem").toURI())));
+        String payByPubKey = new String(Files.readAllBytes(
+            Paths.get(PayByDemo.class.getClassLoader().getResource("sim_200000330782_payby_public_key.pem").toURI())));
         String plain =
-            "{\"notify_time\":\"20210209123000\",\"acquireOrder\":{\"product\":\"Basic Payment Gateway\",\"orderNo\":\"131612857868059068\",\"paySceneCode\":\"PAYPAGE\",\"subject\":\"PCR Test\",\"accessoryContent\":{\"amountDetail\":{\"amount\":{\"amount\":0.80,\"currency\":\"AED\"},\"vatAmount\":{\"amount\":0.20,\"currency\":\"AED\"}},\"terminalDetail\":{\"storeName\":\"10KLabStoreName\",\"terminalId\":\"10KLabTerminal101\",\"storeId\":\"10KLabStore101\",\"operatorId\":\"10KLabOperator101\",\"merchantName\":\"PayBy\"},\"goodsDetail\":{\"quantity\":1.0000,\"goodsId\":\"PCR_TEST\",\"price\":{\"amount\":4.50,\"currency\":\"AED\"},\"body\":\"PCR Test\",\"goodsName\":\"Covid 19 PCR Test\"}},\"revoked\":\"false\",\"deviceId\":\"10KLabTerminal101\",\"merchantOrderNo\":\"Biogenix9\",\"expiredTime\":1612865066353,\"requestTime\":1612857866353,\"totalAmount\":{\"amount\":1.00,\"currency\":\"AED\"},\"payeeMid\":\"200000042613\",\"notifyUrl\":\"https://odoo.g42.ai/api/payment/notification\",\"paymentInfo\":{\"payChannel\":\"BALANCE\",\"paidTime\":1612857890285,\"payerFeeAmount\":{\"amount\":0.00,\"currency\":\"AED\"},\"paidAmount\":{\"amount\":1.00,\"currency\":\"AED\"},\"payerMid\":\"100000050814\"},\"status\":\"PAID_SUCCESS\"},\"_input_charset\":\"UTF-8\",\"notify_timestamp\":1612859400030,\"notify_id\":\"202102090007745961\"}";
+            "{\"body\":{\"acquireOrder\":{\"merchantOrderNo\":\"680cb196-f5f4-4699-8070-537c4170a844\",\"orderNo\":\"131644231565010741\",\"status\":\"CREATED\",\"product\":\"Basic Payment Gateway\",\"totalAmount\":{\"amount\":0.1,\"currency\":\"AED\"},\"payeeMid\":\"200000330782\",\"expiredTime\":1644238716408,\"notifyUrl\":\"http://yoursite.com/api/notification\",\"subject\":\"ipad\",\"requestTime\":1644231516408,\"accessoryContent\":{\"amountDetail\":{\"vatAmount\":{\"amount\":0.1,\"currency\":\"AED\"}},\"goodsDetail\":{\"body\":\"gifts\",\"goodsId\":\"GI1005\",\"goodsName\":\"candy flower\"},\"terminalDetail\":{\"merchantName\":\"autoTestMerchant\"}},\"paySceneCode\":\"PAYPAGE\",\"revoked\":\"false\",\"reserved\":\"order desc\"},\"interActionParams\":{\"tokenUrl\":\"https://sim-mpaypage.test2pay.com/checkout?BIZ_TYPE=202&ft=cbdeb765-d005-4a5f-80b4-91b8751b8c28&t=1644231850092\"}},\"head\":{\"applyStatus\":\"SUCCESS\",\"code\":\"0\",\"msg\":\"SUCCESS\",\"traceCode\":\"959451\"}}";
         String sign =
-            "PpGldGMUBC41gGHqBbiaDMD6XPPdD9diorASPsHswaJujQoGkKLelyeqm3xdza+GiCEuY+g4urkykx6CBuMddUFhB8iK91dRNScGuD0vUn5YCRF+hT1ecKAI9troPvF88PqW2mxI5/aDQJQ/dAD7FV3lamC/YPDVgUPFJabxZUgS8i9gcLlF/hMirSVOZ+nnhQGAJDC8KyQ8qSg5rb0iGdPHPNdvwFehWIK4UU82sYSx1zLF2JVEbzMyk2vAmTwA37QWBvpJHhsUfn6EbvBE3b9AZ1uxOJSyjEjmPPNOCnIW5IpzpQvEPBXevp+LABH8KxyPtGfOY8jPL0fsHQalPw==";
-
+            "Wz1voShplere5g1oL/q6G45z+x7eFt7lHLtPwSvielQFAOkV5cxgKunT/qlj4q3u3hyFNHwgcZPVf+ArKoP11x+JtxLxIswDkoU138sPv//dblaXksi4cBlnNyxamqxYy+vQDb1a0ZEdTXjvSDqN7ikbJHNi3TE9LK75wKd06dx3+GDyvWTIQfN0AM1b38w3PmwuvtSzb6eLt6mJKdZ3ACktJT2LS74o1hh+PgDkYCxC+WDkEjySTmIKGvT4oGhLozgMRZLf6z8MD+gC46NTsvvlZR9/GWirFWn5Eu3ZX8mFJIR83Wtdya+Dk/SUN9XUU17EE/enZTI2kRCXqzS2Vw==";
         // assert verify sign
         Assert.assertTrue(RsaUtil.verifySign(plain, Charset.forName("UTF-8"), sign, payByPubKey));
 
-        GetPlaceOrderResponse callbackOrder = JSON.parseObject(plain, new TypeReference<GetPlaceOrderResponse>() {});
+        SgsResponseWrap<GetPlaceOrderResponse> callbackOrder =
+            JSON.parseObject(plain, new TypeReference<SgsResponseWrap<GetPlaceOrderResponse>>() {});
 
-        System.out.println("acquireOrder callback body=>" + callbackOrder);
+        System.out.println("callback body=>" + callbackOrder);
 
     }
 
@@ -257,9 +262,9 @@ public class PayByDemo {
         placeOrder();
 
         // case 1
-        getOrderByMerchantOrderNo();
+        // getOrderByMerchantOrderNo();
         // case 2
-        // getOrderByOrderNo();
+        getOrderByOrderNo();
     }
 
     @Test
@@ -298,6 +303,13 @@ public class PayByDemo {
     @Test
     public void transfer2bankCase() throws Exception {
         transfer2bank();
+    }
+
+    @Test
+    public void encrypt() throws Exception {
+        String payByPubKey = new String(Files
+            .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("PayBy_key_public_key.pem").toURI())));
+        System.out.println(RsaUtil.encrypt("CAN WANG", Charset.forName("UTF-8"), payByPubKey, 2048));
     }
 
     @Test
@@ -473,6 +485,50 @@ public class PayByDemo {
             StandardCharsets.UTF_8);
     }
 
+
+
+    @Test
+    public void placeDirectPayOrderCase() throws Exception {
+        placeDirectPayOrder();
+    }
+
+    public void getSaveCard() throws Exception {
+        PayByClient client = getPayByClient();
+        CardIndexRequest req = new CardIndexRequest();
+        req.setCardToken("11199520630915416646");
+        SgsRequestWrap<CardIndexRequest> wrap = SgsRequestWrap.wrap(req);
+
+        System.out.println("getSaveCard request=>" + JSON.toJSONString(wrap));
+        SgsResponseWrap<GetSaveCardResponse> responseWrap = client.execute(SgsApi.GET_ACQUIRE_SAVE_CARD, wrap);
+        System.out.println("getSaveCard response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetSaveCardResponse body = responseWrap.getBody();
+        System.out.println("getSaveCard body=>" + JSON.toJSONString(body));
+    }
+
+    @Test
+    public void getSaveCardCase() throws Exception {
+        getSaveCard();
+    }
+
+    public void removeSaveCard() throws Exception {
+        PayByClient client = getPayByClient();
+        CardIndexRequest req = new CardIndexRequest();
+        req.setCardToken("11199520630915416646");
+        SgsRequestWrap<CardIndexRequest> wrap = SgsRequestWrap.wrap(req);
+
+        System.out.println("removeSaveCard request=>" + JSON.toJSONString(wrap));
+        SgsResponseWrap<Void> responseWrap = client.execute(SgsApi.REMOVE_ACQUIRE_SAVE_CARD, wrap);
+        System.out.println("removeSaveCard response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+
+    }
+
+    @Test
+    public void removeSaveCardCase() throws Exception {
+        removeSaveCard();
+    }
+
     public void placeDirectPayOrder() throws Exception {
 
         PayByClient client = getPayByClient();
@@ -491,17 +547,19 @@ public class PayByDemo {
         // For payment scenario parameter relationship, please visit https://developers.payby.com/pay
         Map<String, String> paySceneParams = new HashMap<String, String>();
 
-        String payByPubKey = new String(Files
-            .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("payby_public_key.pem").toURI())));
-        paySceneParams.put("cardNo", RsaUtil.encrypt("20000000001", Charset.forName("UTF-8"), payByPubKey, 2048));
-        paySceneParams.put("holderName", RsaUtil.encrypt("wang", Charset.forName("UTF-8"), payByPubKey, 2048));
-        paySceneParams.put("cvv", RsaUtil.encrypt("123444", Charset.forName("UTF-8"), payByPubKey, 2048));
-        paySceneParams.put("expYear", RsaUtil.encrypt("21", Charset.forName("UTF-8"), payByPubKey, 2048));
-        paySceneParams.put("expMonth", RsaUtil.encrypt("12", Charset.forName("UTF-8"), payByPubKey, 2048));
-        paySceneParams.put("platformType", "ANDROID");
+        String payByPubKey = new String(Files.readAllBytes(
+            Paths.get(PayByDemo.class.getClassLoader().getResource("payby_public_key.pem").toURI())));
+        paySceneParams.put("cardNo", RsaUtil.encrypt("5123450000000008", Charset.forName("UTF-8"), payByPubKey, 2048));
+        paySceneParams.put("holderName", RsaUtil.encrypt("Test", Charset.forName("UTF-8"), payByPubKey, 2048));
+        paySceneParams.put("cvv", RsaUtil.encrypt("100", Charset.forName("UTF-8"), payByPubKey, 2048));
+        paySceneParams.put("expYear", "31");
+        paySceneParams.put("expMonth", "05");
+        paySceneParams.put("platformType", "H5");
         paySceneParams.put("realIP", "1.1.1.1");
         paySceneParams.put("customerId", "1234567");
-        paySceneParams.put("email", "test@pay.com");
+        paySceneParams.put("email", "test@payby.com");
+        paySceneParams.put("saveCard", "true");
+        paySceneParams.put("redirectUrl", "http://yoursite.com/api/notification");
         placeOrderRequest.setPaySceneParams(paySceneParams);
         // Notification URL Optional
         placeOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
@@ -1107,15 +1165,6 @@ public class PayByDemo {
             placeTransferOrderRequest.getMerchantOrderNo(), StandardCharsets.UTF_8);
     }
 
-    public static void main(String[] str) throws Exception {
-        String key =
-            "MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCxpDAKCCFyGUezg2UkA+QSbqCVhrQ0nP1MVqiMNgv5yFnWIinCWStY+IEFaudco42P2cXp8kPfXk1QY4dyiPqoAkYntoAtKAT4Rl/VLYWrKqcqHNJUouQNScOXz3skbAWKbkmJc8/mfyDkI/9fDA+H5Sezh6Wja7GVmO2s9A9DCF0htNycbTIujMQgPB+NvLO6UCJvg+CWKLVTHYd4zMSWEq0+iCCILBG2jYpJ2oX38da2rxBXQMp8u6QckVdI0rA6SaYSlDqBMzh3UcWSpwoHOzDnwZ+5wlKVakTcAAzqZKv3uihngW9c0XdM8mJlOb6UuLs2BHWmmQZBv9LXXb7PAgMBAAECggEAfJiLtU2Un+HJX8jGVOeBvcfoTFhp5wlBxJx3pbh21+DF2iKmJZHDjKjoXfNoiZqRvRbi8T8iifYrxjm5FAWtwc+ug0ZHSuTp73X026INQkwtaaVDhWenCwb08HLvjVFS5ZCLdaRMawA6AqqZAIKGFiwNl6eJ70CnEyVrd0bLuZhmBQHpvprl+z4S2iCNabEVLu6mhZrBgFFlMqfpS8jHR/FsqRRjIM29WoXKA8sZ9IyZ9FRFOHl9Ws2SYcpL3He1WJ2aI3tnF1F7r8Pi8Quu6QOJOVlMr+UGEAQDZAAfs0nDMTGyKUu6K9VGoHy7iO15CwXzogMsrFPAH49Arsk7SQKBgQDYIyK+ud4ABQ5mGt+UKit5Ik7mD3ZHsIphDrBV3juTnxo6bYB/aknoroic45jdgqw51KXED/6IEXtbcW5kKuKTrUH/ry9YZNsmiNn9PaqNGhFcMISEQ+nnbvfTh9iFrCQWNekelqg4ljdQhjSON2Rpy05g003PDlVMWxPLy81PLQKBgQDSZ3p4o1QZBwaEbNRkFH+Y8oFlyVT7mvJxlVXgMGxRMJMTB2El0aFpZ4Zem25Ai0ocJTpFQzeZ1lYaXp92ZrxKgZi5R0+jmnpZOLxYxRdPP9pDIx9g7I4FCdfYOyJ3sQ8calMpOHyRSJRbX5B00b2j0oEiEHlXTwV/tOXYgjSjawKBgA7d+9natyaRMnhbiN2MOQlQDtVMYvpzblFWzVJawwZYf1ldhuU8znCu8L65+R3jiy0/L1fZMczyRuX3W3yQZp154XxQ9JTD+z8fUr9UqpKiJGeO/s6KTWCaBXoLch1fxeuxMaPlARVDX/KuCJdvv/x2+6E1Z7jCZ6Ok8CuojSrRAoGAb5BK0jjYWMTu4bzLCZ4M4k6D6jLNCvRn5W4nsM48QPieo5JgIqt7CObJytRjq3mv/CiJMzym+L07vpO5vhBPeroo/uUfB0Lb6P86b19iMrVKyBqRgtUroORNPOxuJEUQHCMMoWjANFDlyWVstWSZR4pQyn0tueu+oK6MyTaRLq0CgYBUhf4Bx3rFsBPKRTjpRTaC8o7YceTcH/gltkF+r9liSkd+EBnIB4n47JiEhivhgVVATf70vDIp5hMzTFM80fy9X0oycB8Buc1o7pQC4UXbuaOkEEyWjjI5+mI3g175ihPcAnVXl7kYlIx8rlOREGgj/btcCod6OEmsSj0RqPugPg==";
-        String a = RsaUtil.decrypt(
-            "nNwrRMrSu7ILvXJpUuSjUEHx2HYXfe0Ifq0d0XkZSfIX6t3Si2F9LDv2gGqleLHCLLzkl75xNFVKf0kUQix/g0/2tl7prPcztXT8svv1TrnqVY/r1mqLn0IB2Z07U+7BjYeGziyctcZtSs/Qwp6OydNrxlOrZMobbelRzIQmftRBuQT2ywp0U4+XiwW5g7qO+45pXbYKxiDDW7TqaXX0voYHMU4GhEKxxbS4tqWNHYipg3qhtlxHmc5oy221nV4xXTBm6c8/bgWoo8JjwJ8r4DPQe7hWhnw7thenr6hO2xP+5liwV2JvUiPJi75Wp+3mYOMfB9MEPpAe3H03hw5VpA==",
-            Charset.forName("UTF-8"), key, 2048);
-        System.out.println(a + "ddd");
-
-    }
 
     public void transfer2bank() throws Exception {
         PayByClient client = getPayByClient();
@@ -1123,8 +1172,8 @@ public class PayByDemo {
         PlaceTransferToBankOrderRequest placeTransferToBankOrderRequest = new PlaceTransferToBankOrderRequest();
         // Merchant order number Required
         placeTransferToBankOrderRequest.setMerchantOrderNo(UUID.randomUUID().toString());
-        String payByPubKey = new String(Files
-            .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("sim_payby_public_key.pem").toURI())));
+        String payByPubKey = new String(Files.readAllBytes(
+            Paths.get(PayByDemo.class.getClassLoader().getResource("sim_200000030907_payby_public_key.pem").toURI())));
         // Holder Name Required
         placeTransferToBankOrderRequest
             .setHolderName(RsaUtil.encrypt("CAN WANG", Charset.forName("UTF-8"), payByPubKey, 2048));
@@ -1142,6 +1191,13 @@ public class PayByDemo {
         placeTransferToBankOrderRequest.setMemo("Bonus");
         // Notification URL Optional
         placeTransferToBankOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
+
+        // AccountNo Optional
+        // placeTransferToBankOrderRequest
+        // .setAccountNo(RsaUtil.encrypt("220000001", Charset.forName("UTF-8"), payByPubKey, 2048));
+
+        // NetworkCode Optional
+        placeTransferToBankOrderRequest.setNetworkCode("LOCAL");
 
         SgsRequestWrap<PlaceTransferToBankOrderRequest> wrap = SgsRequestWrap.wrap(placeTransferToBankOrderRequest);
         System.out.println("transfer2bank request=>" + JSON.toJSONString(wrap));
@@ -1273,11 +1329,11 @@ public class PayByDemo {
 
         // setting pkcs8 privateKey path
         String merchantPrivateKey = new String(Files.readAllBytes(Paths
-            .get(PayByDemo.class.getClassLoader().getResource("sim_200000030907_merchant_private_key.pem").toURI())));
+            .get(PayByDemo.class.getClassLoader().getResource("merchant_private_key.pem").toURI())));
 
         // setting publicKey path
         String payByPubKey = new String(Files.readAllBytes(
-            Paths.get(PayByDemo.class.getClassLoader().getResource("sim_200000030907_payby_public_key.pem").toURI())));
+            Paths.get(PayByDemo.class.getClassLoader().getResource("payby_public_key.pem").toURI())));
 
         apiConfig.setCert(new KeyCert(merchantPrivateKey, payByPubKey));
 
@@ -1328,7 +1384,7 @@ public class PayByDemo {
         GetAddressRequest getAddressRequest = new GetAddressRequest();
         getAddressRequest.setAssetCode("ETH");
         getAddressRequest.setCustomerId("test001");
-        getAddressRequest.setNetwork("ETH1");
+        getAddressRequest.setNetwork("ETH");
 
         SgsRequestWrap<GetAddressRequest> wrap = SgsRequestWrap.wrap(getAddressRequest);
         System.out.println("getAddress request=>" + JSON.toJSONString(wrap));
@@ -1483,6 +1539,47 @@ public class PayByDemo {
         Assert.assertTrue(SgsApi.checkResponse(responseWrap));
         ReceiptOrderResponse body = responseWrap.getBody();
         System.out.println("notifyReceiptOrder body=>" + JSON.toJSONString(body));
+    }
+
+    @Test
+    public void getFundoutAbilityList()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+        SgsRequestWrap<Void> wrap = SgsRequestWrap.wrap();
+
+        System.out.println("getFundoutAbilityList request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetFundoutAbilityListResponse> responseWrap =
+            client.execute(SgsApi.GET_FUNDOUT_ABILITY_LIST, wrap);
+        System.out.println("getFundoutAbilityList response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetFundoutAbilityListResponse body = responseWrap.getBody();
+        System.out.println("getFundoutAbilityList body=>" + JSON.toJSONString(body));
+    }
+
+    @Test
+    public void calculatefundout()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+        CalculateFundoutRequest calculateFundoutRequest = new CalculateFundoutRequest();
+        // Fundout currencyCode Required
+        calculateFundoutRequest.setFundoutCurrencyCode("USD");
+        // NetworkCode Required
+        calculateFundoutRequest.setNetworkCode("LOCAL");
+
+        calculateFundoutRequest.setOrderAmount(new ExternalMoney(new BigDecimal("100"), "AED"));
+
+        SgsRequestWrap<CalculateFundoutRequest> wrap = SgsRequestWrap.wrap(calculateFundoutRequest);
+
+        System.out.println("calculatefundout request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<CalculateFundoutResponse> responseWrap = client.execute(SgsApi.CALCULATE_FUNDOUT, wrap);
+        System.out.println("calculatefundout response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        CalculateFundoutResponse body = responseWrap.getBody();
+        System.out.println("calculatefundout body=>" + JSON.toJSONString(body));
     }
 
 }
