@@ -50,6 +50,7 @@ import com.payby.gateway.openapi.request.CalculateFundoutRequest;
 import com.payby.gateway.openapi.request.CardIndexRequest;
 import com.payby.gateway.openapi.request.CreateReceiptOrderRequest;
 import com.payby.gateway.openapi.request.GetAddressRequest;
+import com.payby.gateway.openapi.request.GetCashierUrlInfoRequest;
 import com.payby.gateway.openapi.request.GetProtocolRequest;
 import com.payby.gateway.openapi.request.GetRefundOrderRequest;
 import com.payby.gateway.openapi.request.GetStatementRequest;
@@ -67,6 +68,7 @@ import com.payby.gateway.openapi.response.CalculateFundoutResponse;
 import com.payby.gateway.openapi.response.CryptoOrderResponse;
 import com.payby.gateway.openapi.response.CryptoRefundOrderResponse;
 import com.payby.gateway.openapi.response.GetAddressResponse;
+import com.payby.gateway.openapi.response.GetCashierUrlInfoResult;
 import com.payby.gateway.openapi.response.GetCustomerDepositOrderResponse;
 import com.payby.gateway.openapi.response.GetFundoutAbilityListResponse;
 import com.payby.gateway.openapi.response.GetPlaceOrderResponse;
@@ -100,7 +102,7 @@ public class PayByDemo {
         // UAT
         // pairs.add(new ImmutablePair<>("partner-id", "200000057149"));
         // BH
-        pairs.add(new ImmutablePair<>("partner-id", "200000030906"));
+        pairs.add(new ImmutablePair<>("partner-id", "200000030907"));
         // SIM
         // pairs.add(new ImmutablePair<>("partner-id", "200000030907"));
         // setting group-name Optional
@@ -384,6 +386,8 @@ public class PayByDemo {
         // For payment scenario parameter relationship, please visit https://developers.payby.com/pay
         Map<String, String> paySceneParams = new HashMap<String, String>();
         paySceneParams.put("redirectUrl", "http://www.yoursite.com/web/paydone.html?orderId=414768633924763654");
+        paySceneParams.put("eWalletCode", "payby");
+        paySceneParams.put("oneTimePayment", "false");
         placeOrderRequest.setPaySceneParams(paySceneParams);
         // Notification URL Optional
         placeOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
@@ -412,8 +416,12 @@ public class PayByDemo {
 
         System.out.println("placeOrder request=>" + JSON.toJSONString(wrap));
 
-        SgsResponseWrap<PlaceOrderResponse> responseWrap = client.execute(SgsApi.PLACE_ACQUIRE_ORDER, wrap);
+        List<Pair<String, String>> headers = new ArrayList<>();
+        headers.add(Pair.of("Content-Language", "ar"));
+
+        SgsResponseWrap<PlaceOrderResponse> responseWrap = client.execute(SgsApi.PLACE_ACQUIRE_ORDER, wrap, headers);
         System.out.println("placeOrder response=>" + JSON.toJSONString(responseWrap));
+
         Assert.assertTrue(SgsApi.checkResponse(responseWrap));
         PlaceOrderResponse body = responseWrap.getBody();
         System.out.println("placeOrder body=>" + JSON.toJSONString(body));
@@ -486,7 +494,6 @@ public class PayByDemo {
     }
 
 
-
     @Test
     public void placeDirectPayOrderCase() throws Exception {
         placeDirectPayOrder();
@@ -495,7 +502,7 @@ public class PayByDemo {
     public void getSaveCard() throws Exception {
         PayByClient client = getPayByClient();
         CardIndexRequest req = new CardIndexRequest();
-        req.setCardToken("11199520630915416646");
+        req.setCardToken("11194330633016421841");
         SgsRequestWrap<CardIndexRequest> wrap = SgsRequestWrap.wrap(req);
 
         System.out.println("getSaveCard request=>" + JSON.toJSONString(wrap));
@@ -514,7 +521,7 @@ public class PayByDemo {
     public void removeSaveCard() throws Exception {
         PayByClient client = getPayByClient();
         CardIndexRequest req = new CardIndexRequest();
-        req.setCardToken("11199520630915416646");
+        req.setCardToken("11194330633016421841");
         SgsRequestWrap<CardIndexRequest> wrap = SgsRequestWrap.wrap(req);
 
         System.out.println("removeSaveCard request=>" + JSON.toJSONString(wrap));
@@ -956,7 +963,7 @@ public class PayByDemo {
 
         PayByClient client = getPayByClient();
 
-        String orderNo = FileUtils.readFileToString(new File("target/orderNo.txt"), StandardCharsets.UTF_8);
+        String orderNo = "131649313348014222";
 
         OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
         // order number Required
@@ -1580,6 +1587,31 @@ public class PayByDemo {
         Assert.assertTrue(SgsApi.checkResponse(responseWrap));
         CalculateFundoutResponse body = responseWrap.getBody();
         System.out.println("calculatefundout body=>" + JSON.toJSONString(body));
+    }
+
+    public void getCashierUrlInfo()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+        PayByClient client = getPayByClient();
+        GetCashierUrlInfoRequest getCashierUrlInfoRequest = new GetCashierUrlInfoRequest();
+        // TokenUrl Required
+        getCashierUrlInfoRequest.setTokenUrl(
+            "https://sim-checkout.test2pay.com/pay-page/main?BIZ_TYPE=202&ft=cd624549f4894d78b0d368e48bb27aae&t=1654519114067");
+
+        SgsRequestWrap<GetCashierUrlInfoRequest> wrap = SgsRequestWrap.wrap(getCashierUrlInfoRequest);
+
+        System.out.println("getCashierUrlInfo request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetCashierUrlInfoResult> responseWrap = client.execute(SgsApi.GET_CASHIER_URL_INFO, wrap);
+        System.out.println("getCashierUrlInfo response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetCashierUrlInfoResult body = responseWrap.getBody();
+        System.out.println("getCashierUrlInfo body=>" + JSON.toJSONString(body));
+    }
+
+    @Test
+    public void getCashierUrlInfoCase()
+        throws InvalidKeyException, InvalidKeySpecException, SignatureException, IOException, URISyntaxException {
+        getCashierUrlInfo();
     }
 
 }

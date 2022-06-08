@@ -55,8 +55,8 @@ Open download directory: PayBy-java/dependency
 Move to ‘PayBy-java/dependency’ subdirectory
 
 ```shell
-mvn install:install-file -Dfile=payby-openapi-1.0.17.jar -DpomFile=payby-openapi-1.0.17.pom
-mvn install:install-file -Dfile=payby-sdk-1.3.21.jar -DpomFile=payby-sdk-1.3.21.pom
+mvn install:install-file -Dfile=payby-openapi-1.0.18.jar -DpomFile=payby-openapi-1.0.18.pom
+mvn install:install-file -Dfile=payby-sdk-1.3.22.jar -DpomFile=payby-sdk-1.3.22.pom
 ```
 
 
@@ -64,8 +64,8 @@ mvn install:install-file -Dfile=payby-sdk-1.3.21.jar -DpomFile=payby-sdk-1.3.21.
 ##### 2.3.3 Deploy remote repository
 
 ```shell
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.17.jar -DpomFile=payby-openapi-1.0.17.pom
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.21.jar -DpomFile=payby-sdk-1.3.21.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.18.jar -DpomFile=payby-openapi-1.0.18.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.22.jar -DpomFile=payby-sdk-1.3.22.pom
 ```
 
 
@@ -78,7 +78,7 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 <dependency>
        	<groupId>com.payby.gateway</groupId>
 		<artifactId>payby-sdk</artifactId>
-		<version>1.3.21</version>
+		<version>1.3.22</version>
  </dependency>
 ```
 
@@ -97,8 +97,8 @@ mvn dependency:tree
 Get results:
 
 ```shell
-com.payby.gateway:payby-sdk:jar:1.3.21
- +- com.payby.gateway:payby-openapi:jar:1.0.17:compile
+com.payby.gateway:payby-sdk:jar:1.3.22
+ +- com.payby.gateway:payby-openapi:jar:1.0.18:compile
  +- commons-io:commons-io:jar:2.4:compile
  +- commons-codec:commons-codec:jar:1.13:compile
  +- org.projectlombok:lombok:jar:1.18.8:provided
@@ -1233,6 +1233,26 @@ public static List<Pair<String, String>> getFixHeaders() {
         SgsResponseWrap<Void> responseWrap = client.execute(SgsApi.REMOVE_ACQUIRE_SAVE_CARD, wrap);
         System.out.println("removeSaveCard response=>" + JSON.toJSONString(responseWrap));
         Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+```
+
+##### 4.1.28 GetCashierUrlInfo remove
+
+```java
+        PayByClient client = getPayByClient();
+        GetCashierUrlInfoRequest getCashierUrlInfoRequest = new GetCashierUrlInfoRequest();
+        // TokenUrl Required
+        getCashierUrlInfoRequest.setTokenUrl(
+            "https://sim-checkout.test2pay.com/pay-page/main?BIZ_TYPE=202&ft=cd624549f4894d78b0d368e48bb27aae&t=1654519114067");
+
+        SgsRequestWrap<GetCashierUrlInfoRequest> wrap = SgsRequestWrap.wrap(getCashierUrlInfoRequest);
+
+        System.out.println("getCashierUrlInfo request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetCashierUrlInfoResult> responseWrap = client.execute(SgsApi.GET_CASHIER_URL_INFO, wrap);
+        System.out.println("getCashierUrlInfo response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetCashierUrlInfoResult body = responseWrap.getBody();
+        System.out.println("getCashierUrlInfo body=>" + JSON.toJSONString(body));
 ```
 
 
