@@ -44,6 +44,7 @@ import com.payby.gateway.openapi.model.Goods;
 import com.payby.gateway.openapi.model.GoodsDetail;
 import com.payby.gateway.openapi.model.InappSignContent;
 import com.payby.gateway.openapi.model.Receipt;
+import com.payby.gateway.openapi.model.SharingParam;
 import com.payby.gateway.openapi.model.TerminalDetail;
 import com.payby.gateway.openapi.request.ApplyProtocolRequest;
 import com.payby.gateway.openapi.request.CalculateFundoutRequest;
@@ -367,8 +368,7 @@ public class PayByDemo {
         System.out.println("placeOrder body=>" + JSON.toJSONString(body));
     }
 
-    public void placeOrder()
-        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+    public void placeOrder() throws Exception {
 
         PayByClient client = getPayByClient();
 
@@ -378,7 +378,7 @@ public class PayByDemo {
         // Product name Required
         placeOrderRequest.setSubject("ipad");
         // Order totalAmount Required
-        ExternalMoney totalAmount = new ExternalMoney(new BigDecimal("0.1"), "AED");
+        ExternalMoney totalAmount = new ExternalMoney(BigDecimal.TEN, "AED");
         placeOrderRequest.setTotalAmount(totalAmount);
         // Payment scenario code Required
         placeOrderRequest.setPaySceneCode("PAYPAGE");
@@ -412,12 +412,35 @@ public class PayByDemo {
         accessoryContent.setTerminalDetail(terminalDetail);
         placeOrderRequest.setAccessoryContent(accessoryContent);
 
+        List<SharingParam> sharingParamList = new ArrayList<>();
+        SharingParam sp = new SharingParam();
+        String payByPubKey = new String(Files
+            .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("payby_public_key.pem").toURI())));
+        sp.setSharingIdentity(RsaUtil.encrypt("+971-585812341", Charset.forName("UTF-8"), payByPubKey, 2048));
+
+        sp.setSharingIdentitySeqId(1);
+        sp.setSharingIdentityType("PHONE_NO");
+        sp.setSharingMemo("bouns");
+        sp.setSharingAmount(new ExternalMoney(BigDecimal.ONE, "AED"));
+
+        SharingParam sp1 = new SharingParam();
+        sp1.setSharingIdentity(RsaUtil.encrypt("100000002005", Charset.forName("UTF-8"), payByPubKey, 2048));
+
+        sp1.setSharingIdentitySeqId(2);
+        sp1.setSharingIdentityType("MEMBER_ID");
+        sp1.setSharingMemo("cashback");
+        sp1.setSharingAmount(new ExternalMoney(BigDecimal.ONE, "AED"));
+        sharingParamList.add(sp);
+        sharingParamList.add(sp1);
+
+        placeOrderRequest.setSharingParamList(sharingParamList);
+
         SgsRequestWrap<PlaceOrderRequest> wrap = SgsRequestWrap.wrap(placeOrderRequest);
 
         System.out.println("placeOrder request=>" + JSON.toJSONString(wrap));
 
         List<Pair<String, String>> headers = new ArrayList<>();
-        headers.add(Pair.of("Content-Language", "ar"));
+        headers.add(Pair.of("Content-Language", "en"));
 
         SgsResponseWrap<PlaceOrderResponse> responseWrap = client.execute(SgsApi.PLACE_ACQUIRE_ORDER, wrap, headers);
         System.out.println("placeOrder response=>" + JSON.toJSONString(responseWrap));
@@ -492,6 +515,7 @@ public class PayByDemo {
         FileUtils.writeStringToFile(new File("target/orderNo.txt"), body.getAcquireOrder().getOrderNo(),
             StandardCharsets.UTF_8);
     }
+
 
 
     @Test
@@ -963,7 +987,7 @@ public class PayByDemo {
 
         PayByClient client = getPayByClient();
 
-        String orderNo = "131649313348014222";
+        String orderNo = "131658997939155072";
 
         OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
         // order number Required
@@ -1172,6 +1196,7 @@ public class PayByDemo {
             placeTransferOrderRequest.getMerchantOrderNo(), StandardCharsets.UTF_8);
     }
 
+}
 
     public void transfer2bank() throws Exception {
         PayByClient client = getPayByClient();
@@ -1336,11 +1361,11 @@ public class PayByDemo {
 
         // setting pkcs8 privateKey path
         String merchantPrivateKey = new String(Files.readAllBytes(Paths
-            .get(PayByDemo.class.getClassLoader().getResource("merchant_private_key.pem").toURI())));
+            .get(PayByDemo.class.getClassLoader().getResource("sim_200000030907_merchant_private_key.pem").toURI())));
 
         // setting publicKey path
         String payByPubKey = new String(Files.readAllBytes(
-            Paths.get(PayByDemo.class.getClassLoader().getResource("payby_public_key.pem").toURI())));
+            Paths.get(PayByDemo.class.getClassLoader().getResource("sim_200000030907_payby_public_key.pem").toURI())));
 
         apiConfig.setCert(new KeyCert(merchantPrivateKey, payByPubKey));
 
