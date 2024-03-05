@@ -1,5 +1,6 @@
 package com.payby.gateway.sdk.client;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -43,6 +45,8 @@ import com.payby.gateway.openapi.model.ExternalMoney;
 import com.payby.gateway.openapi.model.Goods;
 import com.payby.gateway.openapi.model.GoodsDetail;
 import com.payby.gateway.openapi.model.InappSignContent;
+import com.payby.gateway.openapi.model.MemberBalance;
+import com.payby.gateway.openapi.model.PromotionInfo;
 import com.payby.gateway.openapi.model.Receipt;
 import com.payby.gateway.openapi.model.SharingParam;
 import com.payby.gateway.openapi.model.TerminalDetail;
@@ -52,6 +56,7 @@ import com.payby.gateway.openapi.request.CardIndexRequest;
 import com.payby.gateway.openapi.request.CreateReceiptOrderRequest;
 import com.payby.gateway.openapi.request.GetAddressRequest;
 import com.payby.gateway.openapi.request.GetCashierUrlInfoRequest;
+import com.payby.gateway.openapi.request.GetMemberBalanceRequest;
 import com.payby.gateway.openapi.request.GetProtocolRequest;
 import com.payby.gateway.openapi.request.GetRefundOrderRequest;
 import com.payby.gateway.openapi.request.GetStatementRequest;
@@ -1637,6 +1642,23 @@ public class PayByDemo {
     public void getCashierUrlInfoCase()
         throws InvalidKeyException, InvalidKeySpecException, SignatureException, IOException, URISyntaxException {
         getCashierUrlInfo();
+    }
+	
+	@Test
+    public void getMemberBalance()  throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+        GetMemberBalanceRequest req = new GetMemberBalanceRequest();
+        // CurrencyCode Required
+        req.setCurrencyCode("AED");
+        SgsRequestWrap<GetMemberBalanceRequest> wrap = SgsRequestWrap.wrap(req);
+        System.out.println("getMemberBalance request=>" + JSON.toJSONString(wrap));
+        SgsResponseWrap<MemberBalance> responseWrap = client.execute(SgsApi.GET_BALANCE, wrap);
+        System.out.println("getMemberBalance response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        MemberBalance body = responseWrap.getBody();
+        System.out.println("getMemberBalance body=>" + JSON.toJSONString(body));
+    
     }
 
 }
