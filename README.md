@@ -1271,6 +1271,28 @@ public static List<Pair<String, String>> getFixHeaders() {
         System.out.println("getMemberBalance body=>" + JSON.toJSONString(body));
 ```
 
+##### 4.1.30 GetIbanHolderName
+
+```java
+        GetIbanHolderNameRequest req = new GetIbanHolderNameRequest();
+        String payByPubKey = new String(Files
+            .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("payby_public_key.pem").toURI())));
+        req.setHolderName(RsaUtil.encrypt("CAC RAA PMA", Charset.forName("UTF-8"), payByPubKey, 2048));
+        req.setIban(RsaUtil.encrypt("AE240260001015795916801", Charset.forName("UTF-8"), payByPubKey, 2048));
+        
+        PayByClient client = getPayByClient();
+        SgsRequestWrap<GetIbanHolderNameRequest> wrap = SgsRequestWrap.wrap(req);
+        System.out.println("getIbanHolderName request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetIbanHolderNameResult> responseWrap = client.execute(SgsApi.GET_IBAN_HOLDER_NAME, wrap);
+        System.out.println("getIbanHolderName response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetIbanHolderNameResult body = responseWrap.getBody();
+        System.out.println("getIbanHolderName body=>" + JSON.toJSONString(body));
+```
+
+
+
 ##### 
 
 #### 4.2   Result notification
