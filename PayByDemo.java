@@ -56,6 +56,7 @@ import com.payby.gateway.openapi.request.CardIndexRequest;
 import com.payby.gateway.openapi.request.CreateReceiptOrderRequest;
 import com.payby.gateway.openapi.request.GetAddressRequest;
 import com.payby.gateway.openapi.request.GetCashierUrlInfoRequest;
+import com.payby.gateway.openapi.request.GetIbanHolderNameRequest;
 import com.payby.gateway.openapi.request.GetMemberBalanceRequest;
 import com.payby.gateway.openapi.request.GetProtocolRequest;
 import com.payby.gateway.openapi.request.GetRefundOrderRequest;
@@ -77,6 +78,7 @@ import com.payby.gateway.openapi.response.GetAddressResponse;
 import com.payby.gateway.openapi.response.GetCashierUrlInfoResult;
 import com.payby.gateway.openapi.response.GetCustomerDepositOrderResponse;
 import com.payby.gateway.openapi.response.GetFundoutAbilityListResponse;
+import com.payby.gateway.openapi.response.GetIbanHolderNameResult;
 import com.payby.gateway.openapi.response.GetPlaceOrderResponse;
 import com.payby.gateway.openapi.response.GetProtocolResponse;
 import com.payby.gateway.openapi.response.GetRefundOrderResponse;
@@ -97,6 +99,7 @@ import com.payby.gateway.sdk.config.ClientConfig;
 import com.payby.gateway.sdk.config.OkHttpClientConfig;
 import com.payby.gateway.sdk.misc.util.RsaUtil;
 import com.payby.gateway.sdk.misc.util.SignSerializationUtil;
+
 
 import okhttp3.logging.HttpLoggingInterceptor;
 
@@ -1659,6 +1662,25 @@ public class PayByDemo {
         MemberBalance body = responseWrap.getBody();
         System.out.println("getMemberBalance body=>" + JSON.toJSONString(body));
     
+    }
+	
+	 @Test
+    public void getIbanHolderName() throws Exception {
+        GetIbanHolderNameRequest req = new GetIbanHolderNameRequest();
+        String payByPubKey = new String(Files
+            .readAllBytes(Paths.get(PayByDemo.class.getClassLoader().getResource("sim_200000030907_payby_public_key.pem").toURI())));
+        req.setHolderName(RsaUtil.encrypt("CAC RAA PMA", Charset.forName("UTF-8"), payByPubKey, 2048));
+        req.setIban(RsaUtil.encrypt("AE240260001015795916801", Charset.forName("UTF-8"), payByPubKey, 2048));
+        
+        PayByClient client = getPayByClient();
+        SgsRequestWrap<GetIbanHolderNameRequest> wrap = SgsRequestWrap.wrap(req);
+        System.out.println("getIbanHolderName request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetIbanHolderNameResult> responseWrap = client.execute(SgsApi.GET_IBAN_HOLDER_NAME, wrap);
+        System.out.println("getIbanHolderName response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetIbanHolderNameResult body = responseWrap.getBody();
+        System.out.println("getIbanHolderName body=>" + JSON.toJSONString(body));
     }
 
 }

@@ -55,8 +55,8 @@ Open download directory: PayBy-java/dependency
 Move to ‘PayBy-java/dependency’ subdirectory
 
 ```shell
-mvn install:install-file -Dfile=payby-openapi-1.0.25.jar -DpomFile=payby-openapi-1.0.25.pom
-mvn install:install-file -Dfile=payby-sdk-1.3.29.jar -DpomFile=payby-sdk-1.3.29.pom
+mvn install:install-file -Dfile=payby-openapi-1.0.26.jar -DpomFile=payby-openapi-1.0.26.pom
+mvn install:install-file -Dfile=payby-sdk-1.3.30.jar -DpomFile=payby-sdk-1.3.30.pom
 ```
 
 
@@ -64,8 +64,8 @@ mvn install:install-file -Dfile=payby-sdk-1.3.29.jar -DpomFile=payby-sdk-1.3.29.
 ##### 2.3.3 Deploy remote repository
 
 ```shell
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.25.jar -DpomFile=payby-openapi-1.0.25.pom
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.29.jar -DpomFile=payby-sdk-1.3.29.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.26.jar -DpomFile=payby-openapi-1.0.26.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.30.jar -DpomFile=payby-sdk-1.3.30.pom
 ```
 
 
@@ -78,7 +78,7 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 <dependency>
        	<groupId>com.payby.gateway</groupId>
 		<artifactId>payby-sdk</artifactId>
-		<version>1.3.29</version>
+		<version>1.3.30</version>
  </dependency>
 ```
 
@@ -97,8 +97,8 @@ mvn dependency:tree
 Get results:
 
 ```shell
-com.payby.gateway:payby-sdk:jar:1.3.29
- +- com.payby.gateway:payby-openapi:jar:1.0.25:compile
+com.payby.gateway:payby-sdk:jar:1.3.30
+ +- com.payby.gateway:payby-openapi:jar:1.0.26:compile
  +- commons-io:commons-io:jar:2.4:compile
  +- commons-codec:commons-codec:jar:1.13:compile
  +- org.projectlombok:lombok:jar:1.18.8:provided
