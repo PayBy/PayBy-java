@@ -6,8 +6,7 @@
 
 	<groupId>com.payby.gateway</groupId>
 	<artifactId>payby-sdk</artifactId>
-	<version>1.3.31</version>
-
+	<version>1.3.32</version>
 
 	<scm>
 		<connection>scm:git:git@gitlab.test2pay.com:gateway/payby-sgs/payby-sdk.git
@@ -54,7 +53,7 @@
 		<dependency>
 			<groupId>com.payby.gateway</groupId>
 			<artifactId>payby-openapi</artifactId>
-			<version>1.0.26</version>
+			<version>1.0.27</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -66,7 +65,7 @@
 			<artifactId>commons-codec</artifactId>
 			<version>1.13</version>
 		</dependency>
-
+		<!--整合lombok简化代码编写 -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -83,13 +82,7 @@
 			<scope>compile</scope>
 			<optional>true</optional>
 		</dependency>
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcpkix-jdk15on</artifactId>
-			<version>1.64</version>
-			<scope>compile</scope>
-			<optional>true</optional>
-		</dependency>
+		 
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>

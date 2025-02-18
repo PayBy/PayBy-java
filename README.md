@@ -55,8 +55,8 @@ Open download directory: PayBy-java/dependency
 Move to ‘PayBy-java/dependency’ subdirectory
 
 ```shell
-mvn install:install-file -Dfile=payby-openapi-1.0.26.jar -DpomFile=payby-openapi-1.0.26.pom
-mvn install:install-file -Dfile=payby-sdk-1.3.31.jar -DpomFile=payby-sdk-1.3.31.pom
+mvn install:install-file -Dfile=payby-openapi-1.0.27.jar -DpomFile=payby-openapi-1.0.27.pom
+mvn install:install-file -Dfile=payby-sdk-1.3.32.jar -DpomFile=payby-sdk-1.3.32.pom
 ```
 
 
@@ -64,8 +64,8 @@ mvn install:install-file -Dfile=payby-sdk-1.3.31.jar -DpomFile=payby-sdk-1.3.31.
 ##### 2.3.3 Deploy remote repository
 
 ```shell
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.26.jar -DpomFile=payby-openapi-1.0.26.pom
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.31.jar -DpomFile=payby-sdk-1.3.31.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.27.jar -DpomFile=payby-openapi-1.0.27.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.32.jar -DpomFile=payby-sdk-1.3.32.pom
 ```
 
 
@@ -78,7 +78,7 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 <dependency>
        	<groupId>com.payby.gateway</groupId>
 		<artifactId>payby-sdk</artifactId>
-		<version>1.3.31</version>
+		<version>1.3.32</version>
  </dependency>
 ```
 
@@ -97,8 +97,8 @@ mvn dependency:tree
 Get results:
 
 ```shell
-com.payby.gateway:payby-sdk:jar:1.3.31
- +- com.payby.gateway:payby-openapi:jar:1.0.26:compile
+com.payby.gateway:payby-sdk:jar:1.3.32
+ +- com.payby.gateway:payby-openapi:jar:1.0.27:compile
  +- commons-io:commons-io:jar:2.4:compile
  +- commons-codec:commons-codec:jar:1.13:compile
  +- org.projectlombok:lombok:jar:1.18.8:provided
@@ -1291,7 +1291,23 @@ public static List<Pair<String, String>> getFixHeaders() {
         System.out.println("getIbanHolderName body=>" + JSON.toJSONString(body));
 ```
 
+##### 4.1.31 GetOrderPayer
 
+```java
+       PayByClient client = getPayByClient();
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+//order number Required
+        orderIndexRequest.setOrderNo("13000000023101");
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getOrderPayer request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<GetPlaceOrderPayerResponse> responseWrap = client.execute(SgsApi.GET_ORDER_PAYER, wrap);
+        System.out.println("getOrderPayer response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        GetPlaceOrderPayerResponse body = responseWrap.getBody();
+        System.out.println("getOrderPayer body=>" + JSON.toJSONString(body));
+```
 
 ##### 
 
