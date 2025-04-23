@@ -67,10 +67,13 @@ import com.payby.gateway.openapi.request.PlaceCryptoRefundOrderRequest;
 import com.payby.gateway.openapi.request.PlaceOrderRequest;
 import com.payby.gateway.openapi.request.PlaceRefundOrderRequest;
 import com.payby.gateway.openapi.request.PlaceTransferOrderRequest;
+import com.payby.gateway.openapi.request.PlaceTransferToBankCardRequest;
 import com.payby.gateway.openapi.request.PlaceTransferToBankOrderRequest;
 import com.payby.gateway.openapi.request.QueryCustomerDepositOrderPageRequest;
 import com.payby.gateway.openapi.request.ReceiptOrderIndexRequest;
+import com.payby.gateway.openapi.request.VerifyBankCardPayoutEligibilityRequest;
 import com.payby.gateway.openapi.response.ApplyProtocolResponse;
+import com.payby.gateway.openapi.response.BankCardPayoutEligibility;
 import com.payby.gateway.openapi.response.CalculateFundoutResponse;
 import com.payby.gateway.openapi.response.CryptoOrderResponse;
 import com.payby.gateway.openapi.response.CryptoRefundOrderResponse;
@@ -92,6 +95,7 @@ import com.payby.gateway.openapi.response.PlaceTransferOrderResponse;
 import com.payby.gateway.openapi.response.PlaceTransferToBankOrderResponse;
 import com.payby.gateway.openapi.response.QueryCustomerDepositOrderPageResponse;
 import com.payby.gateway.openapi.response.ReceiptOrderResponse;
+import com.payby.gateway.openapi.response.TransferToBankCardResponse;
 import com.payby.gateway.sdk.PayByClient;
 import com.payby.gateway.sdk.cert.KeyCert;
 import com.payby.gateway.sdk.config.ApiConfig;
@@ -99,6 +103,8 @@ import com.payby.gateway.sdk.config.ClientConfig;
 import com.payby.gateway.sdk.config.OkHttpClientConfig;
 import com.payby.gateway.sdk.misc.util.RsaUtil;
 import com.payby.gateway.sdk.misc.util.SignSerializationUtil;
+
+import okhttp3.logging.HttpLoggingInterceptor;
 
 
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -1681,6 +1687,74 @@ public class PayByDemo {
         Assert.assertTrue(SgsApi.checkResponse(responseWrap));
         GetIbanHolderNameResult body = responseWrap.getBody();
         System.out.println("getIbanHolderName body=>" + JSON.toJSONString(body));
+    }
+	
+	@Test
+    public void transferToBankCard() throws Exception {
+        PayByClient client = getPayByClient();
+        PlaceTransferToBankCardRequest placeTransferToBankOrderRequest = new PlaceTransferToBankCardRequest();
+        // Merchant order number Required
+        placeTransferToBankOrderRequest.setMerchantOrderNo(UUID.randomUUID().toString());
+        String payByPubKey = new String(Files.readAllBytes(
+            Paths.get(PayByDemo.class.getClassLoader().getResource("sim_200000429066_payby_public_key.pem").toURI())));
+        // Holder Name Optional
+        placeTransferToBankOrderRequest
+            .setFirstName(RsaUtil.encrypt("CAN", Charset.forName("UTF-8"), payByPubKey, 2048));
+        // Holder Name Optional
+        placeTransferToBankOrderRequest
+            .setLastName(RsaUtil.encrypt("WANG", Charset.forName("UTF-8"), payByPubKey, 2048));
+        
+        placeTransferToBankOrderRequest
+        .setMiddleName(RsaUtil.encrypt("WANG", Charset.forName("UTF-8"), payByPubKey, 2048));
+        
+        //  AccountHolderType Required
+        placeTransferToBankOrderRequest.setAccountHolderType("INDIVIDUAL");
+        // CardNumber Required
+        placeTransferToBankOrderRequest
+            .setCardNumber(RsaUtil.encrypt("4333678865970084", Charset.forName("UTF-8"), payByPubKey, 2048));
+        // ExpiryYear Required
+        placeTransferToBankOrderRequest.setExpiryYear(RsaUtil.encrypt("2028", Charset.forName("UTF-8"), payByPubKey, 2048));
+        // ExpiryMonth Required
+        placeTransferToBankOrderRequest.setExpiryMonth(RsaUtil.encrypt("08", Charset.forName("UTF-8"), payByPubKey, 2048));
+        // Amount Required
+        placeTransferToBankOrderRequest.setAmount(new ExternalMoney(new BigDecimal("0.1"), "AED"));
+        // Memo Required
+        placeTransferToBankOrderRequest.setMemo("Bonus");
+        // Notification URL Optional
+        placeTransferToBankOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
+
+
+        SgsRequestWrap<PlaceTransferToBankCardRequest> wrap = SgsRequestWrap.wrap(placeTransferToBankOrderRequest);
+        System.out.println("transfer2bankcard request=>" + JSON.toJSONString(wrap));
+        SgsResponseWrap<TransferToBankCardResponse> responseWrap =
+            client.execute(SgsApi.PLACE_TRANSFER_TO_BANK_CARD, wrap);
+        System.out.println("transfer2bankcard response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        TransferToBankCardResponse body = responseWrap.getBody();
+        System.out.println("transfer2bankcard body=>" + JSON.toJSONString(body));
+    }
+    
+    @Test
+    public void getTransferToBankCard()
+        throws InvalidKeySpecException, SignatureException, InvalidKeyException, IOException, URISyntaxException {
+
+        PayByClient client = getPayByClient();
+
+        String merchantOrderNo = "902df535-86c2-4f03-ac39-2d8b8448023c";
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Merchant order number Required
+        orderIndexRequest.setMerchantOrderNo(merchantOrderNo);
+
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getTransferToBankCard request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<TransferToBankCardResponse> responseWrap = client.execute(SgsApi.GET_TRANSFER_TO_BANK_CARD, wrap);
+        System.out.println("getTransferToBankCard response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        TransferToBankCardResponse body = responseWrap.getBody();
+        System.out.println("getTransferToBankCard body=>" + JSON.toJSONString(body));
+
     }
 
 }

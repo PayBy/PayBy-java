@@ -55,8 +55,8 @@ Open download directory: PayBy-java/dependency
 Move to ‘PayBy-java/dependency’ subdirectory
 
 ```shell
-mvn install:install-file -Dfile=payby-openapi-1.0.27.jar -DpomFile=payby-openapi-1.0.27.pom
-mvn install:install-file -Dfile=payby-sdk-1.3.32.jar -DpomFile=payby-sdk-1.3.32.pom
+mvn install:install-file -Dfile=payby-openapi-1.0.28.jar -DpomFile=payby-openapi-1.0.28.pom
+mvn install:install-file -Dfile=payby-sdk-1.3.33.jar -DpomFile=payby-sdk-1.3.33.pom
 ```
 
 
@@ -64,8 +64,8 @@ mvn install:install-file -Dfile=payby-sdk-1.3.32.jar -DpomFile=payby-sdk-1.3.32.
 ##### 2.3.3 Deploy remote repository
 
 ```shell
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.27.jar -DpomFile=payby-openapi-1.0.27.pom
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.32.jar -DpomFile=payby-sdk-1.3.32.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.0.28.jar -DpomFile=payby-openapi-1.0.28.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.3.33.jar -DpomFile=payby-sdk-1.3.33.pom
 ```
 
 
@@ -78,7 +78,7 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 <dependency>
        	<groupId>com.payby.gateway</groupId>
 		<artifactId>payby-sdk</artifactId>
-		<version>1.3.32</version>
+		<version>1.3.33</version>
  </dependency>
 ```
 
@@ -97,8 +97,8 @@ mvn dependency:tree
 Get results:
 
 ```shell
-com.payby.gateway:payby-sdk:jar:1.3.32
- +- com.payby.gateway:payby-openapi:jar:1.0.27:compile
+com.payby.gateway:payby-sdk:jar:1.3.33
+ +- com.payby.gateway:payby-openapi:jar:1.0.28:compile
  +- commons-io:commons-io:jar:2.4:compile
  +- commons-codec:commons-codec:jar:1.13:compile
  +- org.projectlombok:lombok:jar:1.18.8:provided
@@ -1309,7 +1309,78 @@ public static List<Pair<String, String>> getFixHeaders() {
         System.out.println("getOrderPayer body=>" + JSON.toJSONString(body));
 ```
 
-##### 
+##### 4.1.32 TransferToBankCard
+
+```java
+       
+        PayByClient client = getPayByClient();
+        PlaceTransferToBankCardRequest placeTransferToBankOrderRequest = new PlaceTransferToBankCardRequest();
+        // Merchant order number Required
+        placeTransferToBankOrderRequest.setMerchantOrderNo(UUID.randomUUID().toString());
+        String payByPubKey = new String(Files.readAllBytes(
+            Paths.get(PayByDemo.class.getClassLoader().getResource("sim_200000429066_payby_public_key.pem").toURI())));
+        // Holder Name Optional
+        placeTransferToBankOrderRequest
+            .setFirstName(RsaUtil.encrypt("CAN", Charset.forName("UTF-8"), payByPubKey, 2048));
+        // Holder Name Optional
+        placeTransferToBankOrderRequest
+            .setLastName(RsaUtil.encrypt("WANG", Charset.forName("UTF-8"), payByPubKey, 2048));
+        
+        placeTransferToBankOrderRequest
+        .setMiddleName(RsaUtil.encrypt("WANG", Charset.forName("UTF-8"), payByPubKey, 2048));
+        
+        //  AccountHolderType Required
+        placeTransferToBankOrderRequest.setAccountHolderType("INDIVIDUAL");
+        // CardNumber Required
+        placeTransferToBankOrderRequest
+            .setCardNumber(RsaUtil.encrypt("4333678865970084", Charset.forName("UTF-8"), payByPubKey, 2048));
+        // ExpiryYear Required
+        placeTransferToBankOrderRequest.setExpiryYear(RsaUtil.encrypt("2028", Charset.forName("UTF-8"), payByPubKey, 2048));
+        // ExpiryMonth Required
+        placeTransferToBankOrderRequest.setExpiryMonth(RsaUtil.encrypt("08", Charset.forName("UTF-8"), payByPubKey, 2048));
+        // Amount Required
+        placeTransferToBankOrderRequest.setAmount(new ExternalMoney(new BigDecimal("0.1"), "AED"));
+        // Memo Required
+        placeTransferToBankOrderRequest.setMemo("Bonus");
+        // Notification URL Optional
+        placeTransferToBankOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
+
+
+        SgsRequestWrap<PlaceTransferToBankCardRequest> wrap = SgsRequestWrap.wrap(placeTransferToBankOrderRequest);
+        System.out.println("transfer2bankcard request=>" + JSON.toJSONString(wrap));
+        SgsResponseWrap<TransferToBankCardResponse> responseWrap =
+            client.execute(SgsApi.PLACE_TRANSFER_TO_BANK_CARD, wrap);
+        System.out.println("transfer2bankcard response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        TransferToBankCardResponse body = responseWrap.getBody();
+        System.out.println("transfer2bankcard body=>" + JSON.toJSONString(body));
+    
+```
+
+##### 4.1.33 GetTransferToBankCard
+
+```java
+       
+        PayByClient client = getPayByClient();
+
+        String merchantOrderNo = "902df535-86c2-4f03-ac39-2d8b8448023c";
+
+        OrderIndexRequest orderIndexRequest = new OrderIndexRequest();
+        // Merchant order number Required
+        orderIndexRequest.setMerchantOrderNo(merchantOrderNo);
+
+        SgsRequestWrap<OrderIndexRequest> wrap = SgsRequestWrap.wrap(orderIndexRequest);
+        System.out.println("getTransferToBankCard request=>" + JSON.toJSONString(wrap));
+
+        SgsResponseWrap<TransferToBankCardResponse> responseWrap = client.execute(SgsApi.GET_TRANSFER_TO_BANK_CARD, wrap);
+        System.out.println("getTransferToBankCard response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        TransferToBankCardResponse body = responseWrap.getBody();
+        System.out.println("getTransferToBankCard body=>" + JSON.toJSONString(body));
+    
+```
+
+
 
 #### 4.2   Result notification
 
