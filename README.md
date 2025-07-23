@@ -55,8 +55,8 @@ Open download directory: PayBy-java/dependency
 Move to ‘PayBy-java/dependency’ subdirectory
 
 ```shell
-mvn install:install-file -Dfile=payby-openapi-1.1.jar -DpomFile=payby-openapi-1.1.pom
-mvn install:install-file -Dfile=payby-sdk-1.4.jar -DpomFile=payby-sdk-1.4.pom
+mvn install:install-file -Dfile=payby-openapi-1.1.1.jar -DpomFile=payby-openapi-1.1.1.pom
+mvn install:install-file -Dfile=payby-sdk-1.4.1.jar -DpomFile=payby-sdk-1.4.1.pom
 ```
 
 
@@ -64,8 +64,8 @@ mvn install:install-file -Dfile=payby-sdk-1.4.jar -DpomFile=payby-sdk-1.4.pom
 ##### 2.3.3 Deploy remote repository
 
 ```shell
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.1.jar -DpomFile=payby-openapi-1.1.pom
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.4.jar -DpomFile=payby-sdk-1.4.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.1.1.jar -DpomFile=payby-openapi-1.1.1.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.4.1.jar -DpomFile=payby-sdk-1.4.1.pom
 ```
 
 
@@ -78,7 +78,7 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 <dependency>
        	<groupId>com.payby.gateway</groupId>
 		<artifactId>payby-sdk</artifactId>
-		<version>1.4</version>
+		<version>1.4.1</version>
  </dependency>
 ```
 
@@ -97,8 +97,8 @@ mvn dependency:tree
 Get results:
 
 ```shell
-com.payby.gateway:payby-sdk:jar:1.4
- +- com.payby.gateway:payby-openapi:jar:1.1:compile
+com.payby.gateway:payby-sdk:jar:1.4.1
+ +- com.payby.gateway:payby-openapi:jar:1.1.1:compile
  +- commons-io:commons-io:jar:2.4:compile
  +- commons-codec:commons-codec:jar:1.13:compile
  +- org.projectlombok:lombok:jar:1.18.8:provided
@@ -1313,38 +1313,61 @@ public static List<Pair<String, String>> getFixHeaders() {
 
 ```java
        
-        PayByClient client = getPayByClient();
+         PayByClient client = getPayByClient();
         PlaceTransferToBankCardRequest placeTransferToBankOrderRequest = new PlaceTransferToBankCardRequest();
         // Merchant order number Required
         placeTransferToBankOrderRequest.setMerchantOrderNo(UUID.randomUUID().toString());
         String payByPubKey = new String(Files.readAllBytes(
             Paths.get(PayByDemo.class.getClassLoader().getResource("sim_200000429066_payby_public_key.pem").toURI())));
-        // Holder Name Optional
+        // firstName Name Required
         placeTransferToBankOrderRequest
             .setFirstName(RsaUtil.encrypt("CAN", Charset.forName("UTF-8"), payByPubKey, 2048));
-        // Holder Name Optional
+        // lastName Name Required
         placeTransferToBankOrderRequest
             .setLastName(RsaUtil.encrypt("WANG", Charset.forName("UTF-8"), payByPubKey, 2048));
-        
+
         placeTransferToBankOrderRequest
-        .setMiddleName(RsaUtil.encrypt("WANG", Charset.forName("UTF-8"), payByPubKey, 2048));
-        
-        //  AccountHolderType Required
+            .setMiddleName(RsaUtil.encrypt("WANG", Charset.forName("UTF-8"), payByPubKey, 2048));
+
+        // AccountHolderType Required
         placeTransferToBankOrderRequest.setAccountHolderType("INDIVIDUAL");
-        // CardNumber Required
+        // CardNumber Optional
         placeTransferToBankOrderRequest
             .setCardNumber(RsaUtil.encrypt("4333678865970084", Charset.forName("UTF-8"), payByPubKey, 2048));
-        // ExpiryYear Required
-        placeTransferToBankOrderRequest.setExpiryYear(RsaUtil.encrypt("2028", Charset.forName("UTF-8"), payByPubKey, 2048));
-        // ExpiryMonth Required
-        placeTransferToBankOrderRequest.setExpiryMonth(RsaUtil.encrypt("08", Charset.forName("UTF-8"), payByPubKey, 2048));
+        // cardToken Optional
+        // placeTransferToBankOrderRequest.setCardToken("11181726721657465380");
+        // last4 Optional
+        // placeTransferToBankOrderRequest.setLast4("0021");
+        // ExpiryYear Optional
+        placeTransferToBankOrderRequest
+            .setExpiryYear(RsaUtil.encrypt("2028", Charset.forName("UTF-8"), payByPubKey, 2048));
+        // ExpiryMonth Optional
+        placeTransferToBankOrderRequest
+            .setExpiryMonth(RsaUtil.encrypt("08", Charset.forName("UTF-8"), payByPubKey, 2048));
         // Amount Required
         placeTransferToBankOrderRequest.setAmount(new ExternalMoney(new BigDecimal("0.1"), "AED"));
+
+        placeTransferToBankOrderRequest.setCity("city123");
+        placeTransferToBankOrderRequest.setCountryCode("AE");
+        placeTransferToBankOrderRequest.setAddressLine("asd");
+        placeTransferToBankOrderRequest.setState("AA");
+        placeTransferToBankOrderRequest.setSenderType("INDIVIDUAL");
         // Memo Required
         placeTransferToBankOrderRequest.setMemo("Bonus");
+        TransferBankCardSenderInfo senderInfo = new TransferBankCardSenderInfo();
+        placeTransferToBankOrderRequest.setSenderInfoRequest(senderInfo);
+        senderInfo.setAddressLine("Liwa Street off Khaliffa Street");
+        senderInfo.setCity("dubai");
+        senderInfo.setCountryCode("AE");
+        senderInfo.setState("aa");
+        senderInfo.setZipCode("123456");
+        senderInfo.setFirstName(RsaUtil.encrypt("ZZCAN", Charset.forName("UTF-8"), payByPubKey, 2048));
+        senderInfo.setLastName(RsaUtil.encrypt("WANG", Charset.forName("UTF-8"), payByPubKey, 2048));
+        senderInfo.setSourceOfFunds("debit");
+        senderInfo.setReference("test123");
+        senderInfo.setDateOfBirth("1988-01-01");
         // Notification URL Optional
         placeTransferToBankOrderRequest.setNotifyUrl("http://yoursite.com/api/notification");
-
 
         SgsRequestWrap<PlaceTransferToBankCardRequest> wrap = SgsRequestWrap.wrap(placeTransferToBankOrderRequest);
         System.out.println("transfer2bankcard request=>" + JSON.toJSONString(wrap));
@@ -1379,6 +1402,35 @@ public static List<Pair<String, String>> getFixHeaders() {
         System.out.println("getTransferToBankCard body=>" + JSON.toJSONString(body));
     
 ```
+
+##### 4.1.34 VerifyBankCardPayoutEligibility
+
+```java
+       
+        PayByClient client = getPayByClient();
+        VerifyBankCardPayoutEligibilityRequest req = new VerifyBankCardPayoutEligibilityRequest();
+
+        String payByPubKey = new String(Files.readAllBytes(
+            Paths.get(PayByDemo.class.getClassLoader().getResource("sim_200000429066_payby_public_key.pem").toURI())));
+        // cardNumber Optional
+        // req.setCardNumber(RsaUtil.encrypt("4333678865970084", Charset.forName("UTF-8"), payByPubKey, 2048));
+        // cardToken Optional
+        req.setCardToken("11181726721657465380");
+        // last4 Optional
+        req.setLast4("0021");
+        SgsRequestWrap<VerifyBankCardPayoutEligibilityRequest> wrap = SgsRequestWrap.wrap(req);
+        SgsResponseWrap<BankCardPayoutEligibility> responseWrap =
+            client.execute(SgsApi.VERIFY_BANK_CARD_PAYOUT_ELIGIBILITY, wrap);
+        System.out.println("verifyBankCardPayoutEligibility response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        BankCardPayoutEligibility body = responseWrap.getBody();
+        System.out.println("verifyBankCardPayoutEligibility body=>" + JSON.toJSONString(body));
+    
+```
+
+
+
+
 
 
 
