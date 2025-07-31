@@ -6,7 +6,7 @@
 
 	<groupId>com.payby.gateway</groupId>
 	<artifactId>payby-openapi</artifactId>
-	<version>1.1.1</version>
+	<version>1.1.2</version>
 
 	<scm>
 		<connection>scm:git:git@gitlab.test2pay.com:gateway/payby-sgs/payby-openapi.git

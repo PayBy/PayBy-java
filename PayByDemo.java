@@ -1712,6 +1712,9 @@ public class PayByDemo {
         // CardNumber Required
         placeTransferToBankOrderRequest
             .setCardNumber(RsaUtil.encrypt("4333678865970084", Charset.forName("UTF-8"), payByPubKey, 2048));
+		// cardToken Optional
+        // placeTransferToBankOrderRequest.setCardToken("11181726721657465380");
+        // placeTransferToBankOrderRequest.setCardTokenMerchantId("200000429066");
         // ExpiryYear Required
         placeTransferToBankOrderRequest.setExpiryYear(RsaUtil.encrypt("2028", Charset.forName("UTF-8"), payByPubKey, 2048));
         // ExpiryMonth Required
@@ -1754,6 +1757,29 @@ public class PayByDemo {
         Assert.assertTrue(SgsApi.checkResponse(responseWrap));
         TransferToBankCardResponse body = responseWrap.getBody();
         System.out.println("getTransferToBankCard body=>" + JSON.toJSONString(body));
+
+    }
+	
+	@Test
+    public void verifyBankCardPayoutEligibility() throws Exception {
+        PayByClient client = getPayByClient();
+        VerifyBankCardPayoutEligibilityRequest req = new VerifyBankCardPayoutEligibilityRequest();
+
+        String payByPubKey = new String(Files.readAllBytes(
+            Paths.get(PayByDemo.class.getClassLoader().getResource("sim_200000429066_payby_public_key.pem").toURI())));
+        // req.setCardNumber(RsaUtil.encrypt("4333678865970084", Charset.forName("UTF-8"), payByPubKey, 2048));
+        // cardToken Optional
+        req.setCardToken("11181726721657465380");
+        req.setCardTokenMerchantId("200000429066");
+        // last4 Optional
+        req.setLast4("0021");
+        SgsRequestWrap<VerifyBankCardPayoutEligibilityRequest> wrap = SgsRequestWrap.wrap(req);
+        SgsResponseWrap<BankCardPayoutEligibility> responseWrap =
+            client.execute(SgsApi.VERIFY_BANK_CARD_PAYOUT_ELIGIBILITY, wrap);
+        System.out.println("verifyBankCardPayoutEligibility response=>" + JSON.toJSONString(responseWrap));
+        Assert.assertTrue(SgsApi.checkResponse(responseWrap));
+        BankCardPayoutEligibility body = responseWrap.getBody();
+        System.out.println("verifyBankCardPayoutEligibility body=>" + JSON.toJSONString(body));
 
     }
 
