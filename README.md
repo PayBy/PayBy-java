@@ -55,8 +55,8 @@ Open download directory: PayBy-java/dependency
 Move to ‘PayBy-java/dependency’ subdirectory
 
 ```shell
-mvn install:install-file -Dfile=payby-openapi-1.1.2.jar -DpomFile=payby-openapi-1.1.2.pom
-mvn install:install-file -Dfile=payby-sdk-1.4.2.jar -DpomFile=payby-sdk-1.4.2.pom
+mvn install:install-file -Dfile=payby-openapi-1.1.3.jar -DpomFile=payby-openapi-1.1.3.pom
+mvn install:install-file -Dfile=payby-sdk-1.4.3.jar -DpomFile=payby-sdk-1.4.3.pom
 ```
 
 
@@ -64,8 +64,8 @@ mvn install:install-file -Dfile=payby-sdk-1.4.2.jar -DpomFile=payby-sdk-1.4.2.po
 ##### 2.3.3 Deploy remote repository
 
 ```shell
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.1.2.jar -DpomFile=payby-openapi-1.1.2.pom
-mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.4.2.jar -DpomFile=payby-sdk-1.4.2.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-openapi-1.1.3.jar -DpomFile=payby-openapi-1.1.3.pom
+mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=repository name -Dfile=payby-sdk-1.4.3.jar -DpomFile=payby-sdk-1.4.3.pom
 ```
 
 
@@ -78,7 +78,7 @@ mvn deploy:deploy-file -Durl=company maven repository url path -DrepositoryId=re
 <dependency>
        	<groupId>com.payby.gateway</groupId>
 		<artifactId>payby-sdk</artifactId>
-		<version>1.4.2</version>
+		<version>1.4.3</version>
  </dependency>
 ```
 
@@ -97,8 +97,8 @@ mvn dependency:tree
 Get results:
 
 ```shell
-com.payby.gateway:payby-sdk:jar:1.4.2
- +- com.payby.gateway:payby-openapi:jar:1.1.2:compile
+com.payby.gateway:payby-sdk:jar:1.4.3
+ +- com.payby.gateway:payby-openapi:jar:1.1.3:compile
  +- commons-io:commons-io:jar:2.4:compile
  +- commons-codec:commons-codec:jar:1.13:compile
  +- org.projectlombok:lombok:jar:1.18.8:provided
@@ -1428,11 +1428,53 @@ public static List<Pair<String, String>> getFixHeaders() {
     
 ```
 
+##### 4.1.35 queryOrderPage
 
+```javascript
+        PayByClient payByClient = getPayByClient();
+        Date endTime = Date.from(Instant.now());
+        Date startTime = Date.from(Instant.now().plus(Duration.ofDays(-6)));
+        SortPageParam sortPageParam = new SortPageParam();
+        sortPageParam.setNumber(0);
+        sortPageParam.setSize(2);
 
+        OrderQueryPageRequest queryOrderPageRequest = new OrderQueryPageRequest();
+        queryOrderPageRequest.setEndDate(endTime);
+        queryOrderPageRequest.setStartDate(startTime);
+        queryOrderPageRequest.setDeviceIdList(Arrays.asList("TI100999999999900"));
+        queryOrderPageRequest.setIncludeStatusList(Arrays.asList("SETTLED"));
+        queryOrderPageRequest.setSortPageParam(sortPageParam);
 
+        SgsResponseWrap<Pagination<Acquire2OrderListResult>> response =
+            payByClient.execute(SgsApi.QUERY_ORDER_PAGE, SgsRequestWrap.wrap(queryOrderPageRequest));
 
+        System.out.println("queryOrderPage body=>" + JSON.toJSONString(response.getBody()));
+```
 
+##### 4.1.36 queryRefundOrderPage
+
+```javascript
+        PayByClient payByClient = getPayByClient();
+
+        Date endTime = Date.from(Instant.now());
+        Date startTime = Date.from(Instant.now().plus(Duration.ofDays(-6)));
+
+        SortPageParam sortPageParam = new SortPageParam();
+        sortPageParam.setNumber(0);
+        sortPageParam.setSize(2);
+
+        OrderQueryPageRequest queryOrderPageRequest = new OrderQueryPageRequest();
+        queryOrderPageRequest.setEndDate(endTime);
+        queryOrderPageRequest.setStartDate(startTime);
+        queryOrderPageRequest.setDeviceIdList(Arrays.asList("TI100999999999900"));
+        queryOrderPageRequest.setIncludeStatusList(Arrays.asList("SUCCESS"));
+        queryOrderPageRequest.setSortPageParam(sortPageParam);
+
+        SgsResponseWrap<Pagination<RefundOrderListResult>> response =
+            payByClient.execute(SgsApi.QUERY_REFUND_ORDER_PAGE, SgsRequestWrap.wrap(queryOrderPageRequest));
+
+        System.out.println("queryRefundOrderPage body=>" + JSON.toJSONString(response.getBody()));
+```
 
 #### 4.2   Result notification
 
